@@ -91,21 +91,22 @@ document.addEventListener('DOMContentLoaded', () => {
             left: 0;
             top: 50%;
             transform: translateY(-50%);
-            width: 24px;
-            height: 24px;
-            padding: 0;
+            width: auto;
+            height: auto;
+            padding: 4px 7px 4px 5px;
             border: 0;
             background: ${COLOR};
             color: #fff;
             align-items: center;
             justify-content: center;
-            border-radius: 0 6px 6px 0;
+            border-radius: 0 5px 5px 0;
             box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+            font: 600 10px/1 'Segoe UI', Arial, sans-serif;
+            letter-spacing: .3px;
             cursor: pointer;
             z-index: 99999;
             -webkit-tap-highlight-color: transparent;
         }
-        #social-toggle svg { width: 12px; height: 12px; fill: currentColor; }
 
         @media (max-width: 600px) {
             /* Collapsed by default: only the small toggle button shows */
@@ -183,9 +184,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const toggle = document.createElement('button');
     toggle.id = 'social-toggle';
     toggle.type = 'button';
-    toggle.setAttribute('aria-label', 'Show social media links');
+    toggle.setAttribute('aria-label', 'Follow us on social media');
     toggle.setAttribute('aria-expanded', 'false');
-    toggle.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg>';
+    toggle.textContent = 'Follow';
     document.body.appendChild(toggle);
 
     function setOpen(open) {
