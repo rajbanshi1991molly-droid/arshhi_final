@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arshhi Admin Panel</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: 40px auto; padding: 20px; box-sizing: border-box; background-color: #fcfbfa; }
+        .card { border: 1px solid #e2dcd5; padding: 20px; border-radius: 8px; margin-bottom: 20px; background: #fff; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; color: #4A3525; }
+        input[type="text"], input[type="password"], textarea { width: 100%; padding: 10px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
+        textarea { height: 100px; }
+        button { background: #4A3525; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        button:hover { background: #5C4331; }
+        .hidden { display: none; }
+        .nav-links { display: flex; justify-content: space-between; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #4A3525; }
+        .error { color: red; margin-top: 5px; font-size: 14px; }
+        .success { color: green; margin-top: 5px; font-size: 14px; }
+    </style>
+</head>
+<body>
+
+    <!-- LOGIN SECTION -->
+    <div id="loginSection" class="card">
+        <h2>Arshhi Admin Login</h2>
+        <div class="form-group">
+            <label>Username</label>
+            <input type="text" id="username">
+        </div>
+        <div class="form-group">
+            <label>Password</label>
+            <input type="password" id="password">
+        </div>
+        <button onclick="login()">Log in</button>
+        <p id="loginError" class="error"></p>
+    </div>
+
+    <!-- MAIN ADMIN PANEL -->
+    <div id="adminPanel" class="hidden">
+        <div class="nav-links">
+            <strong>Arshhi Admin Portal</strong>
+            <div>
+                <a href="/" target="_blank" style="color: #4A3525; font-weight: bold;">View website</a> | 
+                <a href="#" onclick="logout()" style="color: #666;">Log out</a>
+            </div>
+        </div>
+
+        <!-- Dynamic Website Content Manager -->
+        <div class="card">
+            <h3>Edit Website Data</h3>
+            <div class="form-group">
+                <label>Main Headline Text</label>
+                <input type="text" id="mainHeadline" placeholder="Arshhi – Door to door beauty care">
+            </div>
+            
+            <h4 style="color: #4A3525; margin-top: 25px; border-top: 1px solid #eee; padding-top: 15px;">Social Media Links</h4>
+            <div class="form-group">
+                <label>Facebook URL</label>
+                <input type="text" id="linkFB" placeholder="https://facebook.com">
+            </div>
+            <div class="form-group">
+                <label>Instagram URL</label>
+                <input type="text" id="linkIG" placeholder="https://instagram.com">
+            </div>
+            <div class="form-group">
+                <label>YouTube URL</label>
+                <input type="text" id="linkYT" placeholder="https://youtube.com">
+            </div>
+            <div class="form-group">
+                <label>LinkedIn URL</label>
+                <input type="text" id="linkLN" placeholder="https://linkedin.com">
+            </div>
+
+            <button onclick="saveAllContent()">Save changes</button>
+            <p id="contentStatus"></p>
+        </div>
+
+        <!-- Change Password -->
+        <div class="card">
+            <h3>Change Password</h3>
+            <div class="form-group">
+                <label>Current Password</label>
+                <input type="password" id="currPass">
+            </div>
+            <div class="form-group">
+                <label>New Password (at least 8 characters)</label>
+                <input type="password" id="newPass">
+            </div>
+            <div class="form-group">
+                <label>Repeat New Password</label>
+                <input type="password" id="repeatPass">
+            </div>
+            <button onclick="changePassword()">Change password</button>
+            <p id="passwordStatus"></p>
+        </div>
+    </div>
+
+    <script>
+        const tokenKey = 'arshhi_session_token';
+
+        window.onload = async () => {
+            if (localStorage.getItem(tokenKey)) {
+                showAdminPanel();
+            }
+        };
+
+        function showAdminPanel() {
+            document.getElementById('loginSection').classList.add('hidden');
+            document.getElementById('adminPanel').classList.remove('hidden');
+            fetchCurrentContent();
+        }
+
+        function logout() {
+            localStorage.removeItem(tokenKey);
+            window.location.reload();
+        }
+
+        async function login() {
+            const u = document.getElementById('username').value;
+            const p = document.getElementById('password').value;
+            const err = document.getElementById('loginError');
+            err.textContent = "";
+
+            const res = await fetch('/api/auth', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'login', username: u, password: p })
+            });
+            const data = await res.json();
+
+            if (res.ok) {
+                localStorage.setItem(tokenKey, data.token);
+                showAdminPanel();
+            } else {
+                err.textContent = data.error || "Login failed.";
+            }
+        }
+
+        async function fetchCurrentContent() {
+            const res = await fetch('/api/get-content');
+            if (res.ok) {
+                const data = await res.json();
+                try {
+                    const config = typeof data.content === 'string' ? JSON.parse(data.content) : data.content;
+                    document.getElementById('mainHeadline').value = config.headline || '';
+                    document.getElementById('linkFB').value = config.facebook || '';
+                    document.getElementById('linkIG').value = config.instagram || '';
+                    document.getElementById('linkYT').value = config.youtube || '';
+                    document.getElementById('linkLN').value = config.linkedin || '';
+                } catch(e) {
+                    // Fallback if data is raw string
+                    document.getElementById('mainHeadline').value = data.content || '';
+                }
+            }
+        }
+
+        async function saveAllContent() {
+            const status = document.getElementById('contentStatus');
+            status.className = ''; status.textContent = 'Saving...';
+            
+            // Build the clean structured data object
+            const payload = {
+                headline: document.getElementById('mainHeadline').value,
+                facebook: document.getElementById('linkFB').value,
+                instagram: document.getElementById('linkIG').value,
+                youtube: document.getElementById('linkYT').value,
+                linkedin: document.getElementById('linkLN').value
+            };
+
+            const res = await fetch('/api/save-content', {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem(tokenKey)}`
+                },
+                body: JSON.stringify({ content: JSON.stringify(payload) })
+            });
+
+            if (res.ok) {
+                status.className = 'success';
+                status.textContent = 'All changes and social links saved successfully!';
+            } else {
+                const data = await res.json();
+                status.className = 'error';
+                status.textContent = data.error || 'Failed to save.';
+            }
+        }
+
+        async function changePassword() {
+            const status = document.getElementById('passwordStatus');
+            status.className = ''; status.textContent = '';
+            const current = document.getElementById('currPass').value;
+            const newP = document.getElementById('newPass').value;
+            const repeat = document.getElementById('repeatPass').value;
+
+            if (newP !== repeat) {
+                status.className = 'error';
+                status.textContent = "New passwords don't match.";
+                return;
+            }
+
+            const res = await fetch('/api/auth', {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem(tokenKey)}`
+                },
+                body: JSON.stringify({ action: 'changePassword', currentPassword: current, newPassword: newP })
+            });
+
+            if (res.ok) {
+                status.className = 'success';
+                status.textContent = 'Password updated! Logging out...';
+                setTimeout(logout, 2000);
+            } else {
+                const data = await res.json();
+                status.className = 'error';
+                status.textContent = data.error || 'Update failed.';
+            }
+        }
+    </script>
+</body>
+</html>
