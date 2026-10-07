@@ -132,6 +132,22 @@ document.addEventListener('DOMContentLoaded', () => {
             #social-sidebar a::before { width: 2px; }
             #social-sidebar a span { display: none; }
         }
+        /* phone only: shorten the site's right-side Follow tab, hide the left toggle */
+        @media (max-width: 760px) {
+            #social-toggle { display: none !important; }
+            .social {
+                bottom: auto !important;
+                height: auto !important;
+                max-height: none !important;
+                transform: none !important;
+                border-radius: 12px 0 0 12px !important;
+            }
+            .stab { width: 26px !important; height: auto !important; padding: 8px 0 7px !important; gap: 6px !important; }
+            .stab svg { width: 12px !important; height: 12px !important; }
+            .stab::after { font-size: 8px !important; letter-spacing: .18em !important; }
+            .slinks a { width: 26px !important; height: 26px !important; }
+            .slinks a svg { width: 13px !important; height: 13px !important; }
+        }
         @media (prefers-reduced-motion: reduce) {
             #social-sidebar { animation: none; transform: translate(0, -50%); }
             #social-sidebar * { transition: none !important; }
