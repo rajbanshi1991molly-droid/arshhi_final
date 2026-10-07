@@ -2,6 +2,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (document.getElementById('social-sidebar')) return;
 
     const COLOR = '#4A3525';
+    const COLOR_HOVER = '#6b4a33';
+    const SIZE = 46; // px, size of each icon button
 
     // ---------- Styles ----------
     const style = document.createElement('style');
@@ -10,89 +12,87 @@ document.addEventListener('DOMContentLoaded', () => {
             position: fixed;
             left: 0;
             top: 50%;
-            transform: translate(-100%, -50%);
+            transform: translateY(-50%);
             display: flex;
-            flex-direction: column;
+            flex-direction: row;
+            align-items: center;
             z-index: 99999;
-            box-shadow: 0 6px 20px rgba(0,0,0,0.18);
-            border-radius: 0 10px 10px 0;
-            animation: socialSlideIn .6s .4s cubic-bezier(.22,.9,.3,1) forwards;
+            background: ${COLOR};
+            border-radius: 0 12px 12px 0;
+            box-shadow: 0 6px 20px rgba(0,0,0,.2);
+            overflow: hidden;
         }
-        @keyframes socialSlideIn {
-            to { transform: translate(0, -50%); }
-        }
-        #social-sidebar a {
-            position: relative;
+        #social-sidebar .ss-toggle {
+            width: ${SIZE}px;
+            height: ${SIZE + 6}px;
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 48px;
-            height: 48px;
             background: ${COLOR};
             color: #fff;
-            text-decoration: none;
-            transition: background .25s ease, width .25s ease;
+            border: 0;
+            padding: 0;
+            cursor: pointer;
+            flex-shrink: 0;
         }
-        #social-sidebar a + a { border-top: 1px solid rgba(255,255,255,.12); }
-        #social-sidebar a:first-child { border-top-right-radius: 10px; }
-        #social-sidebar a:last-child  { border-bottom-right-radius: 10px; }
-        #social-sidebar a:hover,
-        #social-sidebar a:focus-visible {
-            background: #6b4a33;
-            width: 56px;
+        #social-sidebar .ss-toggle svg {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+            transition: transform .35s ease;
+        }
+        #social-sidebar .ss-icons {
+            display: flex;
+            flex-direction: row;
+            max-width: 0;
+            opacity: 0;
+            overflow: hidden;
+            transition: max-width .4s cubic-bezier(.22,.9,.3,1), opacity .3s ease;
+        }
+        #social-sidebar.open .ss-icons {
+            max-width: 320px;
+            opacity: 1;
+        }
+        #social-sidebar.open .ss-toggle svg { transform: rotate(180deg); }
+
+        #social-sidebar .ss-icons a {
+            width: ${SIZE}px;
+            height: ${SIZE + 6}px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            text-decoration: none;
+            flex-shrink: 0;
+            border-left: 1px solid rgba(255,255,255,.12);
+            transition: background .25s ease;
+        }
+        #social-sidebar .ss-icons a:hover,
+        #social-sidebar .ss-icons a:focus-visible,
+        #social-sidebar .ss-toggle:hover,
+        #social-sidebar .ss-toggle:focus-visible {
+            background: ${COLOR_HOVER};
             outline: none;
         }
-        #social-sidebar a::before {
-            content: '';
-            position: absolute;
-            left: 0; top: 0; bottom: 0;
-            width: 3px;
-            background: #E8C9A0;
-            transform: scaleY(0);
-            transition: transform .25s ease;
-        }
-        #social-sidebar a:hover::before,
-        #social-sidebar a:focus-visible::before { transform: scaleY(1); }
-        #social-sidebar svg {
+        #social-sidebar .ss-icons svg {
             width: 20px;
             height: 20px;
             fill: currentColor;
             transition: transform .25s ease;
         }
-        #social-sidebar a:hover svg { transform: scale(1.15); }
+        #social-sidebar .ss-icons a:hover svg { transform: scale(1.18); }
 
-        /* Tooltip label */
-        #social-sidebar a span {
-            position: absolute;
-            left: 100%;
-            margin-left: 10px;
-            padding: 6px 12px;
-            background: ${COLOR};
-            color: #fff;
-            font: 500 13px/1 'Segoe UI', Arial, sans-serif;
-            white-space: nowrap;
-            border-radius: 6px;
-            opacity: 0;
-            pointer-events: none;
-            transform: translateX(-6px);
-            transition: opacity .2s ease, transform .2s ease;
-            box-shadow: 0 4px 12px rgba(0,0,0,.18);
+        /* Open on hover for desktop (click also works) */
+        @media (hover: hover) {
+            #social-sidebar:hover .ss-icons { max-width: 320px; opacity: 1; }
+            #social-sidebar:hover .ss-toggle svg { transform: rotate(180deg); }
         }
-        #social-sidebar a:hover span,
-        #social-sidebar a:focus-visible span {
-            opacity: 1;
-            transform: translateX(0);
-        }
-
         @media (max-width: 600px) {
-            #social-sidebar a { width: 40px; height: 40px; }
-            #social-sidebar a:hover { width: 40px; }
-            #social-sidebar svg { width: 17px; height: 17px; }
-            #social-sidebar a span { display: none; }
+            #social-sidebar .ss-toggle,
+            #social-sidebar .ss-icons a { width: 40px; height: 44px; }
         }
         @media (prefers-reduced-motion: reduce) {
-            #social-sidebar { animation: none; transform: translate(0, -50%); }
-            #social-sidebar * { transition: none !important; }
+            #social-sidebar *, #social-sidebar { transition: none !important; }
         }
     `;
     document.head.appendChild(style);
@@ -117,11 +117,24 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     ];
 
-    // ---------- Build sidebar (hidden until links are known) ----------
+    // Share icon for the toggle tab (no text)
+    const sharePath = 'M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z';
+
+    // ---------- Build ----------
     const sidebar = document.createElement('nav');
     sidebar.id = 'social-sidebar';
     sidebar.setAttribute('aria-label', 'Social media links');
     sidebar.style.display = 'none';
+
+    const toggle = document.createElement('button');
+    toggle.type = 'button';
+    toggle.className = 'ss-toggle';
+    toggle.setAttribute('aria-label', 'Social media');
+    toggle.setAttribute('aria-expanded', 'false');
+    toggle.innerHTML = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${sharePath}"/></svg>`;
+
+    const iconsWrap = document.createElement('div');
+    iconsWrap.className = 'ss-icons';
 
     const links = {};
     networks.forEach(n => {
@@ -129,14 +142,28 @@ document.addEventListener('DOMContentLoaded', () => {
         a.target = '_blank';
         a.rel = 'noopener noreferrer';
         a.setAttribute('aria-label', n.label);
-        a.innerHTML = `
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="${n.path}"/></svg>
-            <span>${n.label}</span>`;
+        a.innerHTML = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${n.path}"/></svg>`;
         a.style.display = 'none';
         links[n.key] = a;
-        sidebar.appendChild(a);
+        iconsWrap.appendChild(a);
     });
+
+    sidebar.appendChild(toggle);
+    sidebar.appendChild(iconsWrap);
     document.body.appendChild(sidebar);
+
+    // ---------- Open / close ----------
+    toggle.addEventListener('click', e => {
+        e.stopPropagation();
+        const open = sidebar.classList.toggle('open');
+        toggle.setAttribute('aria-expanded', open);
+    });
+    document.addEventListener('click', e => {
+        if (!sidebar.contains(e.target)) {
+            sidebar.classList.remove('open');
+            toggle.setAttribute('aria-expanded', 'false');
+        }
+    });
 
     // ---------- Load links from API ----------
     fetch('/api/get-content')
@@ -157,7 +184,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
 
-            // Show the bar only if at least one link exists
             if (visible) sidebar.style.display = 'flex';
         })
         .catch(err => console.log('Social links not loaded:', err));
