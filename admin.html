@@ -54,7 +54,7 @@ textarea{resize:vertical;min-height:70px}
 @media (max-width:620px){.row2,.row3{grid-template-columns:1fr}.card{padding:16px}}
 </style>
 </head>
-<body>
+<body><div style="background:#fff3cd;color:#664d03;padding:8px 14px;font:14px system-ui">Preview only. Saving is simulated and nothing is sent to your site.</div>
 <main>
 
 <section id="loginSection" class="card login" aria-labelledby="loginTitle">
@@ -89,6 +89,15 @@ textarea{resize:vertical;min-height:70px}
 </main>
 
 <script>
+(function(){
+var sample={customSections:[{id:'x-offers',n:'Offers',t:'Festive offers',d:'Special prices this month.',nav:true,items:[{t:'Bridal package',d:'Makeup, hair and draping.',p:'\u20B94,500'},{t:'Facial combo',d:'Facial plus manicure.',p:'\u20B91,200'}]}]};
+var realFetch=window.fetch;
+window.fetch=function(u,o){
+  if(String(u).indexOf('/api/get-content')>-1)return Promise.resolve(new Response(JSON.stringify({content:JSON.stringify(sample)}),{status:200,headers:{'Content-Type':'application/json'}}));
+  if(String(u).indexOf('/api/save-content')>-1){try{sample=JSON.parse(JSON.parse(o.body).content)}catch(e){}return Promise.resolve(new Response('{}',{status:200,headers:{'Content-Type':'application/json'}}))}
+  return realFetch.apply(this,arguments);
+};
+})();
 (function(){
 'use strict';
 
@@ -192,7 +201,7 @@ var $=function(id){return document.getElementById(id)};
 var clone=function(o){return JSON.parse(JSON.stringify(o))};
 var stored={}, state=null, dirty=false, loadedOk=false;
 
-function getTok(){try{return localStorage.getItem(TOKEN_KEY)}catch(e){return null}}
+function getTok(){return 'preview'}
 function setTok(v){try{localStorage.setItem(TOKEN_KEY,v)}catch(e){}}
 function delTok(){try{localStorage.removeItem(TOKEN_KEY)}catch(e){}}
 
@@ -246,6 +255,10 @@ function buildState(){
   st.reviews=(Array.isArray(stored.reviews)?clone(stored.reviews):[]).map(function(r){
     var n=Math.max(1,Math.min(5,Math.round(+r.r)||5));
     return Object.assign({},r,{n:String(r.n||''),r:n,c:String(r.c||'')});
+  });
+  st.customSections=(Array.isArray(stored.customSections)?clone(stored.customSections):[]).map(function(c){
+    return Object.assign({},c,{n:String(c.n||''),t:String(c.t||''),d:String(c.d||''),nav:c.nav!==false,
+      items:(Array.isArray(c.items)?c.items:[]).map(function(x){return{t:String(x.t||''),d:String(x.d||''),p:String(x.p||'')}})});
   });
   var so=(stored.social&&typeof stored.social==='object')?stored.social:{};
   ['facebook','instagram','youtube','linkedin'].forEach(function(k){st[k]=String(stored[k]||so[k]||'')});
@@ -309,6 +322,33 @@ function reviewCard(r,i,n){
     fld('Comment',a('c',{rows:3}),r.c,true,'Reviews without a comment are not shown.')
   );
 }
+function customCard(c,i,n){
+  var a=function(f,extra){return Object.assign({'data-g':'customSections','data-i':i,'data-f':f},extra||{})};
+  var chk=h('input',a('nav',{type:'checkbox'}));chk.checked=!!c.nav;
+  var opts=h('div',{class:'opts'});
+  if(!c.items.length)opts.append(h('p',{class:'empty',text:'No options yet. Add the first option for this section.'}));
+  c.items.forEach(function(x,j){
+    var b=function(f,extra){return Object.assign({'data-g':'customSections','data-i':i,'data-j':j,'data-f':f},extra||{})};
+    opts.append(h('div',{class:'item'},
+      h('div',{class:'ih'},h('h3',{text:'Option '+(j+1)+(x.t?': '+x.t:'')}),
+        h('div',{class:'ctl'},h('button',{type:'button',class:'mini del','data-act':'delitem','data-i':i,'data-j':j,text:'Remove'}))),
+      h('div',{class:'row2'},fld('Option name',b('t'),x.t),fld('Price (optional)',b('p'),x.p,false,'Shown as typed, for example \u20B9500.')),
+      fld('Details',b('d',{rows:2}),x.d,true)
+    ));
+  });
+  return h('div',{class:'item'},
+    h('div',{class:'ih'},h('h3',{text:'Section '+(i+1)+(c.n?': '+c.n:'')}),ctl('customSections',i,n,'section '+(i+1))),
+    h('div',{class:'row2'},
+      fld('Menu name',a('n'),c.n,false,'This is the word shown in the top menu, for example Offers.'),
+      fld('Section heading',a('t'),c.t,false,'Big title on the page. Leave empty to use the menu name.')
+    ),
+    fld('Intro text',a('d',{rows:2}),c.d,true,'Optional short text under the heading.'),
+    h('label',{class:'f'},h('span',{class:'lb',text:'Show in the top menu'}),chk),
+    h('h3',{text:'Options in this section'}),
+    opts,
+    h('button',{type:'button',class:'btn ghost','data-act':'additem','data-i':i,text:'Add an option to this section'})
+  );
+}
 function itemsOrEmpty(arr,fn,emptyText){
   if(!arr.length)return h('p',{class:'empty',text:emptyText});
   var frag=document.createDocumentFragment();
@@ -348,6 +388,10 @@ function renderForm(){
     section('Customer reviews','Shown under "What our customers say".',
       itemsOrEmpty(state.reviews,reviewCard,'No reviews yet. Add one to show it on the website.'),
       addBtn('reviews','Add a review')
+    ),
+    section('New menu sections','Create your own section. It appears on the website with its options and gets its own link in the top menu.',
+      itemsOrEmpty(state.customSections,customCard,'No extra sections yet. Add one to see it on your website and menu.'),
+      addBtn('customSections','Add a new section')
     )
   );
 }
@@ -355,6 +399,7 @@ function renderForm(){
 function blank(g){
   if(g==='services')return{n:'',c:'',p:'',s:'',d:'',l:[]};
   if(g==='steps')return{t:'',d:''};
+  if(g==='customSections')return{n:'',t:'',d:'',nav:true,items:[]};
   return{n:'',r:5,c:''};
 }
 
@@ -365,6 +410,8 @@ $('form').addEventListener('input',function(e){
   if(d.k){state[d.k]=t.value}
   else if(d.g){
     var it=state[d.g][+d.i];if(!it)return;
+    if(d.j!==undefined){var sub=it.items[+d.j];if(!sub)return;sub[d.f]=t.value;markDirty();return}
+    if(d.f==='nav'){it.nav=t.checked;markDirty();return}
     if(d.f==='l')it.l=t.value.split('\n');
     else if(d.f==='r')it.r=+t.value;
     else it[d.f]=t.value;
@@ -375,6 +422,12 @@ $('form').addEventListener('input',function(e){
 $('form').addEventListener('click',function(e){
   var b=e.target.closest('button[data-act]');
   if(!b)return;
+  if(b.dataset.act==='additem'||b.dataset.act==='delitem'){
+    var cs=state.customSections[+b.dataset.i];if(!cs)return;
+    if(b.dataset.act==='additem')cs.items.push({t:'',d:'',p:''});
+    else{if(!confirm('Remove this option? It disappears from your website after you save.'))return;cs.items.splice(+b.dataset.j,1)}
+    renderForm();markDirty();return;
+  }
   var g=b.dataset.g,i=+b.dataset.i,act=b.dataset.act,list=state[g],focus=null;
   if(act==='add'){list.push(blank(g));focus={g:g,first:list.length-1}}
   else if(act==='remove'){
@@ -431,6 +484,19 @@ function buildPayload(base){
   out.steps=s.steps.map(function(x){return Object.assign({},x,{t:x.t.trim(),d:x.d.trim()})}).filter(function(x){return x.t||x.d});
   out.reviews=s.reviews.map(function(x){return Object.assign({},x,{n:x.n.trim(),c:x.c.trim(),r:Math.max(1,Math.min(5,+x.r||5))})}).filter(function(x){return x.n||x.c});
 
+  var used={};
+  out.customSections=s.customSections.map(function(x,i){
+    var name=x.n.trim(),head=x.t.trim(),intro=x.d.trim();
+    var items=x.items.map(function(y){return{t:y.t.trim(),d:y.d.trim(),p:y.p.trim()}}).filter(function(y){return y.t||y.d});
+    if(!name&&!head&&!intro&&!items.length)return null;
+    if(!name)errors.push('Section '+(i+1)+' needs a menu name.');
+    var id='x-'+(name||head||'section').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
+    if(id==='x-')id='x-section';
+    var base=id,k=2;while(used[id]){id=base+'-'+k++}
+    used[id]=1;
+    return Object.assign({},x,{id:id,n:name,t:head,d:intro,nav:!!x.nav,items:items});
+  }).filter(Boolean);
+
   out.facebook=cleanUrl('Facebook',s.facebook,errors);
   out.instagram=cleanUrl('Instagram',s.instagram,errors);
   out.youtube=cleanUrl('YouTube',s.youtube,errors);
@@ -466,8 +532,9 @@ async function save(){
       body:JSON.stringify({content:JSON.stringify(r.payload)})
     });
     if(res.status===401){
+      var m401='';try{m401=(await res.json()).error||''}catch(e){}
       delTok();
-      showLogin('The save was refused, usually because your session ended. Log in again. Your edits are still on this page.');
+      showLogin('The server refused the save'+(m401?' ("'+m401+'")':'')+'. Log in again and try once more. If it happens again right after logging in, the server setup needs fixing (check JWT_SECRET in Vercel). Your edits are still on this page.');
       return;
     }
     if(!res.ok){
@@ -555,7 +622,7 @@ $('discardBtn').addEventListener('click',function(){
 });
 window.addEventListener('beforeunload',function(e){if(dirty){e.preventDefault();e.returnValue=''}});
 
-if(getTok())enterPanel();else $('username').focus();
+enterPanel();
 })();
 </script>
 </body>
