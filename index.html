@@ -641,7 +641,7 @@ els.forEach(function(el){io.observe(el)})}
 
 function paint(){root.classList.toggle('noanim',painted);root.innerHTML=render(data);wire();reveal();updateCart();onScroll();painted=true}
 paint();
-fetch('/api/content',{cache:'no-store'}).then(function(r){return r.ok?r.json():null}).then(function(nd){if(nd&&nd.brand&&Array.isArray(nd.services)&&JSON.stringify(nd)!==JSON.stringify(data)){nd.reviews=nd.reviews||[];data=nd;paint()}}).catch(function(){});
+fetch('/api/get-content',{cache:'no-store'}).then(function(r){return r.ok?r.json():null}).then(function(j){var nd=j&&j.content;if(typeof nd==='string'){try{nd=JSON.parse(nd)}catch(e){nd=null}}if(nd&&nd.brand&&Array.isArray(nd.services)){nd=Object.assign({},data,nd);nd.reviews=nd.reviews||[];if(JSON.stringify(nd)!==JSON.stringify(data)){data=nd;paint()}}}).catch(function(){});fetch('/api/get-content',{cache:'no-store'}).then(function(r){return r.ok?r.json():null}).then(function(j){var nd=j&&j.content;if(typeof nd==='string'){try{nd=JSON.parse(nd)}catch(e){nd=null}}if(nd&&nd.brand&&Array.isArray(nd.services)){nd=Object.assign({},data,nd);nd.reviews=nd.reviews||[];if(JSON.stringify(nd)!==JSON.stringify(data)){data=nd;paint()}}}).catch(function(){});
 })();
 </script>
 <script>
