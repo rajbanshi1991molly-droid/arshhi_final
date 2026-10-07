@@ -86,20 +86,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
         @media (max-width: 600px) {
             #social-sidebar {
-                box-shadow: 0 3px 10px rgba(0,0,0,0.15);
-                border-radius: 0 8px 8px 0;
+                box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+                border-radius: 0 4px 4px 0;
             }
             #social-sidebar a,
             #social-sidebar a:hover,
             #social-sidebar a:focus-visible {
-                width: 30px;
-                height: 30px;
+                width: 16px;
+                height: 16px;
             }
-            #social-sidebar a:first-child { border-top-right-radius: 8px; }
-            #social-sidebar a:last-child  { border-bottom-right-radius: 8px; }
-            #social-sidebar svg { width: 14px; height: 14px; }
+            #social-sidebar a:first-child { border-top-right-radius: 4px; }
+            #social-sidebar a:last-child  { border-bottom-right-radius: 4px; }
+            #social-sidebar svg { width: 8px; height: 8px; }
             #social-sidebar a:hover svg { transform: none; }
-            #social-sidebar a::before { width: 2px; }
+            #social-sidebar a::before { width: 1px; }
             #social-sidebar a span { display: none; }
         }
         @media (prefers-reduced-motion: reduce) {
