@@ -1,15 +1,5 @@
 {
-  "version": 2,
-  "builds": [
-    {
-      "src": "api/*js",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "public/**/*",
-      "use": "@vercel/static"
-    }
-  ],
+  "cleanUrls": true,
   "rewrites": [
     {
       "source": "/api/:path*",
@@ -17,15 +7,15 @@
     },
     {
       "source": "/admin",
-      "destination": "/public/adminhtml"
+      "destination": "/adminhtml"
     },
     {
       "source": "/socialjs",
-      "destination": "/public/socialjs"
+      "destination": "/socialjs"
     },
     {
-      "source": "/(*)",
-      "destination": "/public/indexhtml"
+      "source": "/((?!api|admin|socialjs)*)" ,
+      "destination": "/indexhtml"
     }
   ]
 }
