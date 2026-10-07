@@ -1,224 +1,562 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Arshhi Admin Panel</title>
-    <style>
-        body { font-family: Arial, sans-serif; max-width: 600px; margin: 40px auto; padding: 20px; box-sizing: border-box; background-color: #fcfbfa; }
-        .card { border: 1px solid #e2dcd5; padding: 20px; border-radius: 8px; margin-bottom: 20px; background: #fff; }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; color: #4A3525; }
-        input[type="text"], input[type="password"], textarea { width: 100%; padding: 10px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
-        textarea { height: 100px; }
-        button { background: #4A3525; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; }
-        button:hover { background: #5C4331; }
-        .hidden { display: none; }
-        .nav-links { display: flex; justify-content: space-between; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #4A3525; }
-        .error { color: red; margin-top: 5px; font-size: 14px; }
-        .success { color: green; margin-top: 5px; font-size: 14px; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Arshhi admin</title>
+<style>
+:root{--bg:#faf6f1;--card:#fffefb;--ink:#2c1e14;--soft:#6b574a;--bronze:#8b5e3c;--bronze-d:#6b4423;--line:#e6d9c8;--field:#cdbfae;--bad:#a3321f;--ok:#2f6b3a;--warn:#8a5a00}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:760px;margin:0 auto;padding:20px 16px 120px}
+h1,h2,h3{font-family:Georgia,"Times New Roman",serif;line-height:1.25;margin:0;color:var(--ink)}
+h1{font-size:1.5rem}
+h2{font-size:1.25rem}
+h3{font-size:1.05rem}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:20px;margin:0 0 18px}
+.card>h2+.sub{margin-top:4px}
+.sub{margin:0 0 16px;color:var(--soft);font-size:.95rem}
+.top{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between;padding:4px 0 16px;margin-bottom:18px;border-bottom:2px solid var(--bronze)}
+.top nav{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center}
+.top a,.linkbtn{color:var(--bronze-d);font-weight:600;background:none;border:0;padding:6px 0;font:inherit;font-weight:600;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.f{display:block;margin:0 0 14px}
+.lb{display:block;margin:0 0 5px;font-weight:600;color:var(--bronze-d);font-size:.95rem}
+.hint{display:block;margin-top:4px;color:var(--soft);font-size:.85rem}
+input,textarea,select{width:100%;padding:11px 12px;border:1px solid var(--field);border-radius:6px;background:#fff;color:var(--ink);font:inherit}
+textarea{resize:vertical;min-height:70px}
+:focus-visible{outline:2px solid var(--bronze);outline-offset:2px}
+.btn{min-height:44px;padding:10px 18px;border-radius:6px;border:1px solid var(--bronze);background:var(--bronze);color:#fff;font:inherit;font-weight:700;cursor:pointer}
+.btn:hover{background:var(--bronze-d)}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+.btn.ghost{background:transparent;color:var(--bronze-d)}
+.btn.ghost:hover{background:#f3eadf}
+.mini{min-height:36px;padding:4px 12px;border-radius:6px;border:1px solid var(--field);background:#fff;color:var(--ink);font:inherit;font-size:.9rem;cursor:pointer}
+.mini:hover{background:#f3eadf}
+.mini:disabled{opacity:.4;cursor:not-allowed}
+.mini.del{color:var(--bad);border-color:#dcb4aa}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
+.row3{display:grid;grid-template-columns:2fr 1.3fr 1.2fr;gap:0 14px;align-items:start}
+.item{border:1px solid var(--line);border-radius:8px;padding:14px;margin:0 0 14px;background:#fff}
+.ih{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;margin-bottom:12px}
+.ctl{display:flex;gap:6px}
+.empty{margin:0 0 14px;color:var(--soft)}
+.login{max-width:420px;margin:48px auto 0}
+.msg{margin:10px 0 0;font-size:.95rem}
+.bad{color:var(--bad)}.ok{color:var(--ok)}.warn{color:var(--warn)}
+.errbox{border-color:#dcb4aa;background:#fff6f3}
+.errbox ul{margin:8px 0 0;padding-left:20px;color:var(--bad)}
+.bar{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px))}
+.bar>div{max-width:760px;margin:0 auto;display:flex;gap:12px;align-items:center;justify-content:space-between}
+#status{font-size:.95rem;min-width:0}
+@media (max-width:620px){.row2,.row3{grid-template-columns:1fr}.card{padding:16px}}
+</style>
 </head>
 <body>
+<main>
 
-    <!-- LOGIN SECTION -->
-    <div id="loginSection" class="card">
-        <h2>Arshhi Admin Login</h2>
-        <div class="form-group">
-            <label>Username</label>
-            <input type="text" id="username">
-        </div>
-        <div class="form-group">
-            <label>Password</label>
-            <input type="password" id="password">
-        </div>
-        <button onclick="login()">Log in</button>
-        <p id="loginError" class="error"></p>
+<section id="loginSection" class="card login" aria-labelledby="loginTitle">
+  <h1 id="loginTitle">Arshhi admin</h1>
+  <p class="sub">Log in to edit your website.</p>
+  <label class="f"><span class="lb">Username</span><input type="text" id="username" autocomplete="username" autocapitalize="none" spellcheck="false"></label>
+  <label class="f"><span class="lb">Password</span><input type="password" id="password" autocomplete="current-password"></label>
+  <button type="button" class="btn" id="loginBtn">Log in</button>
+  <p id="loginError" class="msg bad" role="alert"></p>
+</section>
+
+<div id="adminPanel" hidden>
+  <header class="top">
+    <h1>Arshhi admin</h1>
+    <nav aria-label="Admin">
+      <a href="/" target="_blank" rel="noopener">View website</a>
+      <button type="button" class="linkbtn" id="backupBtn">Download backup</button>
+      <button type="button" class="linkbtn" id="discardBtn">Discard changes</button>
+      <button type="button" class="linkbtn" id="logoutBtn">Log out</button>
+    </nav>
+  </header>
+  <div id="errBox" class="card errbox" role="alert" hidden></div>
+  <div id="form"></div>
+  <div class="bar">
+    <div>
+      <span id="status" role="status" aria-live="polite"></span>
+      <button type="button" class="btn" id="saveBtn" disabled>Save changes</button>
     </div>
+  </div>
+</div>
 
-    <!-- MAIN ADMIN PANEL -->
-    <div id="adminPanel" class="hidden">
-        <div class="nav-links">
-            <strong>Arshhi Admin Portal</strong>
-            <div>
-                <a href="/" target="_blank" style="color: #4A3525; font-weight: bold;">View website</a> | 
-                <a href="#" onclick="logout()" style="color: #666;">Log out</a>
-            </div>
-        </div>
+</main>
 
-        <!-- Dynamic Website Content Manager -->
-        <div class="card">
-            <h3>Edit Website Data</h3>
-            <div class="form-group">
-                <label>Main Headline Text</label>
-                <input type="text" id="mainHeadline" placeholder="Arshhi – Door to door beauty care">
-            </div>
-            
-            <h4 style="color: #4A3525; margin-top: 25px; border-top: 1px solid #eee; padding-top: 15px;">Social Media Links</h4>
-            <div class="form-group">
-                <label>Facebook URL</label>
-                <input type="text" id="linkFB" placeholder="https://facebook.com">
-            </div>
-            <div class="form-group">
-                <label>Instagram URL</label>
-                <input type="text" id="linkIG" placeholder="https://instagram.com">
-            </div>
-            <div class="form-group">
-                <label>YouTube URL</label>
-                <input type="text" id="linkYT" placeholder="https://youtube.com">
-            </div>
-            <div class="form-group">
-                <label>LinkedIn URL</label>
-                <input type="text" id="linkLN" placeholder="https://linkedin.com">
-            </div>
+<script>
+(function(){
+'use strict';
 
-            <button onclick="saveAllContent()">Save changes</button>
-            <p id="contentStatus"></p>
-        </div>
+/* Same storage key and same three API addresses as before, so nothing about the connection changes. */
+var TOKEN_KEY='arshhi_session_token';
+var API_AUTH='/api/auth', API_GET='/api/get-content', API_SAVE='/api/save-content';
 
-        <!-- Change Password -->
-        <div class="card">
-            <h3>Change Password</h3>
-            <div class="form-group">
-                <label>Current Password</label>
-                <input type="password" id="currPass">
-            </div>
-            <div class="form-group">
-                <label>New Password (at least 8 characters)</label>
-                <input type="password" id="newPass">
-            </div>
-            <div class="form-group">
-                <label>Repeat New Password</label>
-                <input type="password" id="repeatPass">
-            </div>
-            <button onclick="changePassword()">Change password</button>
-            <p id="passwordStatus"></p>
-        </div>
-    </div>
+/* What the website shows today. Used only to fill the form the first time, before anything is saved. */
+var DEFAULTS={
+ "brand": "Arshhi",
+ "tagline": "Beauty, care, confidence.",
+ "heroTitle": "Salon care, at your doorstep",
+ "heroText": "Haircut, facial, manicure, pedicure and makeup, done at home in Kolkata. Open every day, 10 am to 8 pm.",
+ "phone": "7980226594",
+ "days": "Open every day",
+ "hours": "10 am to 8 pm",
+ "address": "74 Rastraguru Avenue,\nKolkata 700028, West Bengal",
+ "services": [
+  {
+   "n": "Haircut",
+   "s": "Trims and styled cuts for women, men and kids.",
+   "d": "Trims and styled cuts at home for women, men and kids.",
+   "l": [
+    "A quick talk about the style you want",
+    "Haircut and finishing",
+    "Styling on request"
+   ]
+  },
+  {
+   "n": "Facial",
+   "s": "Cleansing and glow facials suited to your skin.",
+   "d": "A facial chosen to suit your skin, done in the comfort of your home.",
+   "l": [
+    "Skin cleansing",
+    "Gentle exfoliation",
+    "Face massage",
+    "Face mask and finishing"
+   ]
+  },
+  {
+   "n": "Manicure",
+   "s": "Hand care, nail shaping and polish.",
+   "d": "Hand care that leaves your hands and nails neat and polished.",
+   "l": [
+    "Nail shaping",
+    "Cuticle care",
+    "Hand massage",
+    "Nail polish"
+   ]
+  },
+  {
+   "n": "Pedicure",
+   "s": "Foot care that leaves your feet soft and clean.",
+   "d": "Foot care that leaves your feet soft, clean and fresh.",
+   "l": [
+    "Foot soak and cleaning",
+    "Nail shaping and cuticle care",
+    "Foot scrub and massage",
+    "Nail polish"
+   ]
+  },
+  {
+   "n": "Makeup",
+   "s": "Party, festive and occasion makeup.",
+   "d": "Makeup for parties, festivals and special occasions, applied at your home.",
+   "l": [
+    "A talk about the look you want",
+    "Skin preparation",
+    "Makeup application",
+    "Final touch-ups"
+   ]
+  },
+  {
+   "n": "And more",
+   "s": "Ask us about other beauty care services.",
+   "d": "Arshhi offers more beauty care services than the ones listed here.",
+   "l": [
+    "Call or message us with what you need",
+    "We will tell you if we can do it at home"
+   ]
+  }
+ ],
+ "steps": [
+  {
+   "t": "Call or message",
+   "d": "Tell us the service you want and the time that suits you."
+  },
+  {
+   "t": "We confirm",
+   "d": "We agree on a slot between 10 am and 8 pm."
+  },
+  {
+   "t": "We come to you",
+   "d": "Relax at home while we take care of the rest."
+  }
+ ],
+ "reviews": []
+};
 
-    <script>
-        const tokenKey = 'arshhi_session_token';
+var $=function(id){return document.getElementById(id)};
+var clone=function(o){return JSON.parse(JSON.stringify(o))};
+var stored={}, state=null, dirty=false, loadedOk=false;
 
-        window.onload = async () => {
-            if (localStorage.getItem(tokenKey)) {
-                showAdminPanel();
-            }
-        };
+function getTok(){try{return localStorage.getItem(TOKEN_KEY)}catch(e){return null}}
+function setTok(v){try{localStorage.setItem(TOKEN_KEY,v)}catch(e){}}
+function delTok(){try{localStorage.removeItem(TOKEN_KEY)}catch(e){}}
 
-        function showAdminPanel() {
-            document.getElementById('loginSection').classList.add('hidden');
-            document.getElementById('adminPanel').classList.remove('hidden');
-            fetchCurrentContent();
-        }
+function h(tag,props){
+  var e=document.createElement(tag);
+  props=props||{};
+  Object.keys(props).forEach(function(k){
+    var v=props[k];
+    if(k==='class')e.className=v;
+    else if(k==='text')e.textContent=v;
+    else e.setAttribute(k,v);
+  });
+  for(var i=2;i<arguments.length;i++){
+    var c=arguments[i];
+    if(c==null)continue;
+    e.append(c.nodeType?c:document.createTextNode(c));
+  }
+  return e;
+}
 
-        function logout() {
-            localStorage.removeItem(tokenKey);
-            window.location.reload();
-        }
+function setStatus(msg,kind){var s=$('status');s.textContent=msg||'';s.className=kind||''}
+function markDirty(){dirty=true;setStatus('You have unsaved changes.','warn')}
 
-        async function login() {
-            const u = document.getElementById('username').value;
-            const p = document.getElementById('password').value;
-            const err = document.getElementById('loginError');
-            err.textContent = "";
+/* ---------- reading what is stored ---------- */
+function parseContent(raw){
+  var c=raw;
+  if(typeof c==='string'){
+    try{c=JSON.parse(c)}catch(e){return c.trim()?{headline:c}:{}}
+  }
+  return(c&&typeof c==='object'&&!Array.isArray(c))?c:{};
+}
 
-            const res = await fetch('/api/auth', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ action: 'login', username: u, password: p })
-            });
-            const data = await res.json();
+async function fetchLatest(){
+  var res=await fetch(API_GET,{cache:'no-store'});
+  if(!res.ok)throw new Error('Could not load the current content ('+res.status+').');
+  var data=await res.json();
+  return parseContent(data.content);
+}
 
-            if (res.ok) {
-                localStorage.setItem(tokenKey, data.token);
-                showAdminPanel();
-            } else {
-                err.textContent = data.error || "Login failed.";
-            }
-        }
+function buildState(){
+  function pick(k){return(stored[k]!==undefined&&stored[k]!==null)?stored[k]:DEFAULTS[k]}
+  function list(k){var v=pick(k);return clone(Array.isArray(v)?v:[])}
+  var st={};
+  ['brand','tagline','heroTitle','heroText','phone','days','hours','address'].forEach(function(k){st[k]=String(pick(k)==null?'':pick(k))});
+  st.services=list('services').map(function(s){
+    var p=s.p!=null?s.p:(s.price!=null?s.price:'');
+    var c=s.c!=null?s.c:(s.category!=null?s.category:'');
+    return Object.assign({},s,{n:String(s.n||''),s:String(s.s||''),d:String(s.d||''),l:Array.isArray(s.l)?s.l.map(String):[],p:String(p),c:String(c)});
+  });
+  st.steps=list('steps').map(function(s){return Object.assign({},s,{t:String(s.t||''),d:String(s.d||'')})});
+  st.reviews=(Array.isArray(stored.reviews)?clone(stored.reviews):[]).map(function(r){
+    var n=Math.max(1,Math.min(5,Math.round(+r.r)||5));
+    return Object.assign({},r,{n:String(r.n||''),r:n,c:String(r.c||'')});
+  });
+  var so=(stored.social&&typeof stored.social==='object')?stored.social:{};
+  ['facebook','instagram','youtube','linkedin'].forEach(function(k){st[k]=String(stored[k]||so[k]||'')});
+  return st;
+}
 
-        async function fetchCurrentContent() {
-            const res = await fetch('/api/get-content');
-            if (res.ok) {
-                const data = await res.json();
-                try {
-                    const config = typeof data.content === 'string' ? JSON.parse(data.content) : data.content;
-                    document.getElementById('mainHeadline').value = config.headline || '';
-                    document.getElementById('linkFB').value = config.facebook || '';
-                    document.getElementById('linkIG').value = config.instagram || '';
-                    document.getElementById('linkYT').value = config.youtube || '';
-                    document.getElementById('linkLN').value = config.linkedin || '';
-                } catch(e) {
-                    // Fallback if data is raw string
-                    document.getElementById('mainHeadline').value = data.content || '';
-                }
-            }
-        }
+/* ---------- building the form ---------- */
+function fld(label,attrs,value,multi,hint){
+  var el=h(multi?'textarea':'input',attrs);
+  if(!multi&&!attrs.type)el.setAttribute('type','text');
+  el.value=value==null?'':value;
+  return h('label',{class:'f'},h('span',{class:'lb',text:label}),el,hint?h('span',{class:'hint',text:hint}):null);
+}
+function section(title,desc){
+  var s=h('section',{class:'card'},h('h2',{text:title}),desc?h('p',{class:'sub',text:desc}):null);
+  for(var i=2;i<arguments.length;i++)if(arguments[i])s.append(arguments[i]);
+  return s;
+}
+function ctl(g,i,n,what){
+  var up=h('button',{type:'button',class:'mini','data-act':'up','data-g':g,'data-i':i,'aria-label':'Move '+what+' up',text:'Up'});
+  var dn=h('button',{type:'button',class:'mini','data-act':'down','data-g':g,'data-i':i,'aria-label':'Move '+what+' down',text:'Down'});
+  var rm=h('button',{type:'button',class:'mini del','data-act':'remove','data-g':g,'data-i':i,'aria-label':'Remove '+what,text:'Remove'});
+  if(i===0)up.disabled=true;
+  if(i===n-1)dn.disabled=true;
+  return h('div',{class:'ctl'},up,dn,rm);
+}
+function addBtn(g,label){return h('button',{type:'button',class:'btn ghost','data-act':'add','data-g':g,text:label})}
 
-        async function saveAllContent() {
-            const status = document.getElementById('contentStatus');
-            status.className = ''; status.textContent = 'Saving...';
-            
-            // Build the clean structured data object
-            const payload = {
-                headline: document.getElementById('mainHeadline').value,
-                facebook: document.getElementById('linkFB').value,
-                instagram: document.getElementById('linkIG').value,
-                youtube: document.getElementById('linkYT').value,
-                linkedin: document.getElementById('linkLN').value
-            };
+function serviceCard(s,i,n){
+  var a=function(f,extra){return Object.assign({'data-g':'services','data-i':i,'data-f':f},extra||{})};
+  return h('div',{class:'item'},
+    h('div',{class:'ih'},h('h3',{text:'Service '+(i+1)+(s.n?': '+s.n:'')}),ctl('services',i,n,'service '+(i+1))),
+    h('div',{class:'row3'},
+      fld('Name',a('n'),s.n),
+      fld('Category',a('c'),s.c,false,'Optional. Adds filter buttons when you use two or more.'),
+      fld('Starting price (\u20B9)',a('p',{inputmode:'decimal'}),s.p,false,'Numbers only. Leave empty to show "Call for price".')
+    ),
+    fld('Short summary',a('s',{rows:2}),s.s,true,'Shown on the service card.'),
+    fld('Full description',a('d',{rows:3}),s.d,true,'Shown in the details window and in the services guide.'),
+    fld('What is included',a('l',{rows:5}),s.l.join('\n'),true,'One item per line.')
+  );
+}
+function stepCard(s,i,n){
+  var a=function(f,extra){return Object.assign({'data-g':'steps','data-i':i,'data-f':f},extra||{})};
+  return h('div',{class:'item'},
+    h('div',{class:'ih'},h('h3',{text:'Step '+(i+1)+(s.t?': '+s.t:'')}),ctl('steps',i,n,'step '+(i+1))),
+    fld('Title',a('t'),s.t),
+    fld('Description',a('d',{rows:2}),s.d,true)
+  );
+}
+function reviewCard(r,i,n){
+  var a=function(f,extra){return Object.assign({'data-g':'reviews','data-i':i,'data-f':f},extra||{})};
+  var sel=h('select',a('r'));
+  for(var k=5;k>=1;k--){var o=h('option',{value:k,text:k+(k===1?' star':' stars')});if(k===r.r)o.selected=true;sel.append(o)}
+  return h('div',{class:'item'},
+    h('div',{class:'ih'},h('h3',{text:'Review '+(i+1)+(r.n?': '+r.n:'')}),ctl('reviews',i,n,'review '+(i+1))),
+    h('div',{class:'row2'},
+      fld('Customer name',a('n'),r.n),
+      h('label',{class:'f'},h('span',{class:'lb',text:'Rating'}),sel)
+    ),
+    fld('Comment',a('c',{rows:3}),r.c,true,'Reviews without a comment are not shown.')
+  );
+}
+function itemsOrEmpty(arr,fn,emptyText){
+  if(!arr.length)return h('p',{class:'empty',text:emptyText});
+  var frag=document.createDocumentFragment();
+  arr.forEach(function(x,i){frag.append(fn(x,i,arr.length))});
+  return frag;
+}
 
-            const res = await fetch('/api/save-content', {
-                method: 'POST',
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem(tokenKey)}`
-                },
-                body: JSON.stringify({ content: JSON.stringify(payload) })
-            });
+function renderForm(){
+  var root=$('form');root.textContent='';
+  root.append(
+    section('Business details','Shown at the top of the page, in the contact section and in booking messages.',
+      fld('Business name',{'data-k':'brand'},state.brand),
+      fld('Tagline',{'data-k':'tagline'},state.tagline),
+      fld('Main headline',{'data-k':'heroTitle'},state.heroTitle),
+      fld('Intro text',{'data-k':'heroText',rows:3},state.heroText,true),
+      h('div',{class:'row2'},
+        fld('Phone number',{'data-k':'phone',type:'tel',inputmode:'tel'},state.phone,false,'At least 10 digits. Customers call and WhatsApp this number.'),
+        fld('Open days',{'data-k':'days'},state.days,false,'For example: Open every day')
+      ),
+      fld('Opening hours',{'data-k':'hours'},state.hours,false,'For example: 10 am to 8 pm'),
+      fld('Address',{'data-k':'address',rows:3},state.address,true,'Press Enter to start a new line.')
+    ),
+    section('Social media links','Leave a box empty to hide that icon.',
+      fld('Facebook',{'data-k':'facebook',type:'url',inputmode:'url',placeholder:'https://facebook.com/yourpage'},state.facebook),
+      fld('Instagram',{'data-k':'instagram',type:'url',inputmode:'url',placeholder:'https://instagram.com/yourpage'},state.instagram),
+      fld('YouTube',{'data-k':'youtube',type:'url',inputmode:'url',placeholder:'https://youtube.com/@yourchannel'},state.youtube),
+      fld('LinkedIn',{'data-k':'linkedin',type:'url',inputmode:'url',placeholder:'https://linkedin.com/company/yourpage'},state.linkedin)
+    ),
+    section('Services','Each service is a card with a price and a details window.',
+      itemsOrEmpty(state.services,serviceCard,'No services yet. Add your first service.'),
+      addBtn('services','Add a service')
+    ),
+    section('How booking works','The steps customers see under "How booking works".',
+      itemsOrEmpty(state.steps,stepCard,'No steps yet.'),
+      addBtn('steps','Add a step')
+    ),
+    section('Customer reviews','Shown under "What our customers say".',
+      itemsOrEmpty(state.reviews,reviewCard,'No reviews yet. Add one to show it on the website.'),
+      addBtn('reviews','Add a review')
+    )
+  );
+}
 
-            if (res.ok) {
-                status.className = 'success';
-                status.textContent = 'All changes and social links saved successfully!';
-            } else {
-                const data = await res.json();
-                status.className = 'error';
-                status.textContent = data.error || 'Failed to save.';
-            }
-        }
+function blank(g){
+  if(g==='services')return{n:'',c:'',p:'',s:'',d:'',l:[]};
+  if(g==='steps')return{t:'',d:''};
+  return{n:'',r:5,c:''};
+}
 
-        async function changePassword() {
-            const status = document.getElementById('passwordStatus');
-            status.className = ''; status.textContent = '';
-            const current = document.getElementById('currPass').value;
-            const newP = document.getElementById('newPass').value;
-            const repeat = document.getElementById('repeatPass').value;
+/* ---------- editing ---------- */
+$('form').addEventListener('input',function(e){
+  var t=e.target,d=t.dataset;
+  if(!d)return;
+  if(d.k){state[d.k]=t.value}
+  else if(d.g){
+    var it=state[d.g][+d.i];if(!it)return;
+    if(d.f==='l')it.l=t.value.split('\n');
+    else if(d.f==='r')it.r=+t.value;
+    else it[d.f]=t.value;
+  }else return;
+  markDirty();
+});
 
-            if (newP !== repeat) {
-                status.className = 'error';
-                status.textContent = "New passwords don't match.";
-                return;
-            }
+$('form').addEventListener('click',function(e){
+  var b=e.target.closest('button[data-act]');
+  if(!b)return;
+  var g=b.dataset.g,i=+b.dataset.i,act=b.dataset.act,list=state[g],focus=null;
+  if(act==='add'){list.push(blank(g));focus={g:g,first:list.length-1}}
+  else if(act==='remove'){
+    if(!confirm('Remove this item? It disappears from your website after you save.'))return;
+    list.splice(i,1);focus={g:g,add:true};
+  }
+  else if(act==='up'&&i>0){var a=list[i-1];list[i-1]=list[i];list[i]=a;focus={g:g,act:'up',i:i-1}}
+  else if(act==='down'&&i<list.length-1){var c=list[i+1];list[i+1]=list[i];list[i]=c;focus={g:g,act:'down',i:i+1}}
+  else return;
+  renderForm();markDirty();
+  var el=null;
+  if(focus.first!==undefined)el=document.querySelector('[data-g="'+focus.g+'"][data-i="'+focus.first+'"]:not(button)');
+  else if(focus.add)el=document.querySelector('button[data-act="add"][data-g="'+focus.g+'"]');
+  else{
+    el=document.querySelector('button[data-act="'+focus.act+'"][data-g="'+focus.g+'"][data-i="'+focus.i+'"]:not(:disabled)')||
+       document.querySelector('button[data-act="'+(focus.act==='up'?'down':'up')+'"][data-g="'+focus.g+'"][data-i="'+focus.i+'"]');
+  }
+  if(el)el.focus();
+});
 
-            const res = await fetch('/api/auth', {
-                method: 'POST',
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem(tokenKey)}`
-                },
-                body: JSON.stringify({ action: 'changePassword', currentPassword: current, newPassword: newP })
-            });
+/* ---------- checking and saving ---------- */
+function cleanUrl(label,v,errors){
+  v=String(v||'').trim();
+  if(!v)return'';
+  if(!/^[a-z][a-z0-9+.-]*:/i.test(v))v='https://'+v;
+  try{
+    var u=new URL(v);
+    if(u.protocol!=='https:'&&u.protocol!=='http:')throw 0;
+    return v;
+  }catch(e){errors.push(label+' link is not a valid web address.');return''}
+}
 
-            if (res.ok) {
-                status.className = 'success';
-                status.textContent = 'Password updated! Logging out...';
-                setTimeout(logout, 2000);
-            } else {
-                const data = await res.json();
-                status.className = 'error';
-                status.textContent = data.error || 'Update failed.';
-            }
-        }
-    </script>
+function buildPayload(base){
+  var s=state,errors=[],out=Object.assign({},base);
+  ['brand','tagline','heroTitle','heroText','phone','days','hours'].forEach(function(k){out[k]=String(s[k]).trim()});
+  out.address=String(s.address).replace(/\r/g,'').split('\n').map(function(x){return x.trim()}).filter(Boolean).join('\n');
+
+  if(!out.brand)errors.push('Business name is required.');
+  if(String(out.phone).replace(/\D/g,'').length<10)errors.push('Phone number needs at least 10 digits.');
+
+  out.services=s.services.map(function(x,i){
+    var o=Object.assign({},x);
+    o.n=x.n.trim();o.s=x.s.trim();o.d=x.d.trim();
+    o.l=x.l.map(function(t){return t.trim()}).filter(Boolean);
+    var c=String(x.c||'').trim(),p=String(x.p||'').trim().replace(/^\s*(\u20B9|rs\.?|inr)\s*/i,'');
+    if(c)o.c=c;else delete o.c;
+    if(p)o.p=p;else delete o.p;
+    delete o.price;delete o.category;
+    if(!o.n)errors.push('Service '+(i+1)+' needs a name.');
+    return o;
+  });
+  if(!out.services.length)errors.push('Add at least one service.');
+
+  out.steps=s.steps.map(function(x){return Object.assign({},x,{t:x.t.trim(),d:x.d.trim()})}).filter(function(x){return x.t||x.d});
+  out.reviews=s.reviews.map(function(x){return Object.assign({},x,{n:x.n.trim(),c:x.c.trim(),r:Math.max(1,Math.min(5,+x.r||5))})}).filter(function(x){return x.n||x.c});
+
+  out.facebook=cleanUrl('Facebook',s.facebook,errors);
+  out.instagram=cleanUrl('Instagram',s.instagram,errors);
+  out.youtube=cleanUrl('YouTube',s.youtube,errors);
+  out.linkedin=cleanUrl('LinkedIn',s.linkedin,errors);
+  if(out.social&&typeof out.social==='object'&&!Array.isArray(out.social)){
+    out.social=Object.assign({},out.social,{facebook:out.facebook,instagram:out.instagram,youtube:out.youtube,linkedin:out.linkedin});
+  }
+  return{errors:errors,payload:out};
+}
+
+function showErrors(list){
+  var box=$('errBox');box.textContent='';
+  if(!list.length){box.hidden=true;return}
+  box.append(h('h2',{text:'Fix these before saving'}),h('ul',{},list.map(function(t){return h('li',{text:t})})));
+  box.hidden=false;
+  box.scrollIntoView({block:'start'});
+}
+
+async function save(){
+  if(!loadedOk){setStatus('Your content did not load, so saving is off. Reload this page.','bad');return}
+  var token=getTok();
+  if(!token){showLogin('Log in again to save. Your edits are still on this page.');return}
+  var btn=$('saveBtn');btn.disabled=true;setStatus('Saving\u2026');
+  try{
+    /* Start from what is stored right now, so every field this panel does not edit is kept as it is. */
+    var base=await fetchLatest();
+    var r=buildPayload(base);
+    showErrors(r.errors);
+    if(r.errors.length){setStatus('Not saved. Fix the items listed above.','bad');return}
+    var res=await fetch(API_SAVE,{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
+      body:JSON.stringify({content:JSON.stringify(r.payload)})
+    });
+    if(res.status===401){
+      delTok();
+      showLogin('The save was refused, usually because your session ended. Log in again. Your edits are still on this page.');
+      return;
+    }
+    if(!res.ok){
+      var d={};try{d=await res.json()}catch(e){}
+      throw new Error(d.error||'Save failed ('+res.status+').');
+    }
+    stored=r.payload;dirty=false;
+    setStatus('Saved.','ok');
+  }catch(err){
+    setStatus((err&&err.message)||'Could not save. Check your connection and try again.','bad');
+  }finally{btn.disabled=!loadedOk}
+}
+
+/* ---------- loading ---------- */
+async function load(){
+  setStatus('Loading your content\u2026');
+  $('saveBtn').disabled=true;
+  $('form').textContent='';
+  showErrors([]);
+  try{
+    stored=await fetchLatest();
+    state=buildState();
+    loadedOk=true;dirty=false;
+    renderForm();
+    setStatus('');
+    $('saveBtn').disabled=false;
+  }catch(err){
+    loadedOk=false;state=null;
+    setStatus('');
+    var retry=h('button',{type:'button',class:'btn',text:'Try again'});
+    retry.addEventListener('click',load);
+    $('form').append(section('Could not load your content',null,
+      h('p',{class:'sub',text:((err&&err.message)||'The server did not answer.')+' Nothing was changed. Saving is switched off until the content loads.'}),retry));
+  }
+}
+
+/* ---------- login, logout, backup ---------- */
+function showLogin(message){
+  $('adminPanel').hidden=true;
+  $('loginSection').hidden=false;
+  $('loginError').textContent=message||'';
+  $('password').value='';
+  $('username').focus();
+}
+function enterPanel(){
+  $('loginSection').hidden=true;
+  $('adminPanel').hidden=false;
+  if(state&&loadedOk){setStatus(dirty?'Logged in again. Press Save changes.':'','ok')}
+  else load();
+}
+async function login(){
+  var u=$('username').value.trim(),p=$('password').value,err=$('loginError'),btn=$('loginBtn');
+  err.textContent='';
+  if(!u||!p){err.textContent='Enter your username and password.';return}
+  btn.disabled=true;
+  try{
+    var res=await fetch(API_AUTH,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'login',username:u,password:p})});
+    var data={};try{data=await res.json()}catch(e){}
+    if(res.ok&&data.token){setTok(data.token);$('password').value='';enterPanel()}
+    else err.textContent=data.error||'Login failed.';
+  }catch(e){err.textContent='Could not reach the server. Check your connection.'}
+  finally{btn.disabled=false}
+}
+function logout(){
+  if(dirty&&!confirm('You have unsaved changes. Log out anyway?'))return;
+  dirty=false;delTok();location.reload();
+}
+function backup(){
+  var blob=new Blob([JSON.stringify(stored,null,2)],{type:'application/json'});
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='arshhi-backup-'+new Date().toISOString().slice(0,10)+'.json';
+  document.body.append(a);a.click();a.remove();
+  setTimeout(function(){URL.revokeObjectURL(a.href)},1000);
+}
+
+$('loginBtn').addEventListener('click',login);
+['username','password'].forEach(function(id){$(id).addEventListener('keydown',function(e){if(e.key==='Enter')login()})});
+$('saveBtn').addEventListener('click',save);
+$('logoutBtn').addEventListener('click',logout);
+$('backupBtn').addEventListener('click',backup);
+$('discardBtn').addEventListener('click',function(){
+  if(dirty&&!confirm('Discard your unsaved changes and reload the saved content?'))return;
+  load();
+});
+window.addEventListener('beforeunload',function(e){if(dirty){e.preventDefault();e.returnValue=''}});
+
+if(getTok())enterPanel();else $('username').focus();
+})();
+</script>
 </body>
 </html>
