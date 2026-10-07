@@ -84,22 +84,51 @@ document.addEventListener('DOMContentLoaded', () => {
             transform: translateX(0);
         }
 
+        /* Toggle button: hidden on laptop, only used on phones */
+        #social-toggle {
+            display: none;
+            position: fixed;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 24px;
+            height: 24px;
+            padding: 0;
+            border: 0;
+            background: ${COLOR};
+            color: #fff;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0 6px 6px 0;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+            cursor: pointer;
+            z-index: 99999;
+            -webkit-tap-highlight-color: transparent;
+        }
+        #social-toggle svg { width: 12px; height: 12px; fill: currentColor; }
+
         @media (max-width: 600px) {
+            /* Collapsed by default: only the small toggle button shows */
+            #social-toggle.ready { display: flex; }
+            #social-toggle.hide  { display: none; }
+            #social-sidebar:not(.open) { display: none !important; }
+
+            /* Opened: full icon bar at the previous (tap) size */
             #social-sidebar {
-                box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-                border-radius: 0 4px 4px 0;
+                box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+                border-radius: 0 8px 8px 0;
             }
             #social-sidebar a,
             #social-sidebar a:hover,
             #social-sidebar a:focus-visible {
-                width: 16px;
-                height: 16px;
+                width: 30px;
+                height: 30px;
             }
-            #social-sidebar a:first-child { border-top-right-radius: 4px; }
-            #social-sidebar a:last-child  { border-bottom-right-radius: 4px; }
-            #social-sidebar svg { width: 8px; height: 8px; }
+            #social-sidebar a:first-child { border-top-right-radius: 8px; }
+            #social-sidebar a:last-child  { border-bottom-right-radius: 8px; }
+            #social-sidebar svg { width: 14px; height: 14px; }
             #social-sidebar a:hover svg { transform: none; }
-            #social-sidebar a::before { width: 1px; }
+            #social-sidebar a::before { width: 2px; }
             #social-sidebar a span { display: none; }
         }
         @media (prefers-reduced-motion: reduce) {
@@ -150,6 +179,29 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     document.body.appendChild(sidebar);
 
+    // ---------- Mobile toggle button (CSS hides it on laptop) ----------
+    const toggle = document.createElement('button');
+    toggle.id = 'social-toggle';
+    toggle.type = 'button';
+    toggle.setAttribute('aria-label', 'Show social media links');
+    toggle.setAttribute('aria-expanded', 'false');
+    toggle.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg>';
+    document.body.appendChild(toggle);
+
+    function setOpen(open) {
+        sidebar.classList.toggle('open', open);
+        toggle.classList.toggle('hide', open);
+        toggle.setAttribute('aria-expanded', String(open));
+    }
+    toggle.addEventListener('click', (e) => { e.stopPropagation(); setOpen(true); });
+    // Tap anywhere else (or on a link) to collapse back to the small button
+    document.addEventListener('click', (e) => {
+        if (sidebar.classList.contains('open') && !sidebar.contains(e.target)) setOpen(false);
+    });
+    sidebar.addEventListener('click', (e) => {
+        if (e.target.closest('a')) setOpen(false);
+    });
+
     // ---------- Load links from API ----------
     fetch('/api/get-content')
         .then(res => res.json())
@@ -170,7 +222,10 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             // Show the bar only if at least one link exists
-            if (visible) sidebar.style.display = 'flex';
+            if (visible) {
+                sidebar.style.display = 'flex';
+                toggle.classList.add('ready');
+            }
         })
         .catch(err => console.log('Social links not loaded:', err));
 });
