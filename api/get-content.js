@@ -1,16 +1,12 @@
-import { Redis } from '@upstash/redis';
-
-const redis = Redis.fromEnv();
+import { redis, CONTENT_KEY, parseContent } from './_lib.js';
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
+  res.setHeader('Cache-Control', 'no-store');
   try {
-    let content = await redis.get('homepage_content');
-    if (typeof content === 'string') {
-      try { content = JSON.parse(content); } catch { content = null; }
-    }
-    res.setHeader('Cache-Control', 'no-store');
-    return res.status(200).json({ content: content || null });
+    const raw = await redis.get(CONTENT_KEY);
+    const content = parseContent(raw) ?? 'Arshhi – Door to door beauty care';
+    return res.status(200).json({ content });
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }
