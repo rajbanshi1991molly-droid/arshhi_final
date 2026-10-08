@@ -641,7 +641,11 @@ els.forEach(function(el){io.observe(el)})}
 
 function paint(){root.classList.toggle('noanim',painted);root.innerHTML=render(data);wire();reveal();updateCart();onScroll();painted=true}
 paint();
-fetch('/api/content',{cache:'no-store'}).then(function(r){return r.ok?r.json():null}).then(function(nd){if(nd&&nd.brand&&Array.isArray(nd.services)&&JSON.stringify(nd)!==JSON.stringify(data)){nd.reviews=nd.reviews||[];data=nd;paint()}}).catch(function(){});
+fetch('/api/get-content',{cache:'no-store'}).then(function(r){return r.ok?r.json():null}).then(function(res){
+  var nd=res&&res.content;
+  if(typeof nd==='string'){try{nd=JSON.parse(nd)}catch(e){nd=null}}
+  if(nd&&nd.brand&&Array.isArray(nd.services)&&JSON.stringify(nd)!==JSON.stringify(data)){nd.reviews=nd.reviews||[];data=nd;paint()}
+}).catch(function(){});
 })();
 </script>
 <script>
@@ -720,7 +724,7 @@ if(root)new MutationObserver(function(){clearTimeout(tm);tm=setTimeout(petals,25
 if(!fine)return;
 var cols=['#c4a484','#8b5e3c','#a67c5a'],lt=0;
 d.addEventListener('pointermove',function(e){var n=performance.now();if(n-lt<80)return;lt=n;
-var s=d.createElement('i');s.className='fxs';s.textContent='\u2726';s.style.left=e.clientX+'px';s.style.top=e.clientY+'px';s.style.color=cols[(Math.random()*3)|0];s.style.fontSize=(8+Math.random()*8)+'px';d.body.appendChild(s);
+
 s.animate([{transform:'translate(-50%,-50%) scale(1)',opacity:.9},{transform:'translate(-50%,14px) scale(.2) rotate(90deg)',opacity:0}],{duration:900,easing:'ease-out'}).onfinish=function(){s.remove()}},{passive:true});
 })();
 </script>
