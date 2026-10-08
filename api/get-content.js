@@ -1,23 +1,24 @@
 import { Redis } from '@upstash/redis';
 
+// Securely boots up your fresh Upstash connection using native Vercel credentials
 const redis = Redis.fromEnv();
 
 export default async function handler(req, res) {
   
-  // 1. DYNAMIC DATA RETRIEVAL (GET): Supplies structured JSON data to the homepage index
+  // 1. FRONTEND DATA RETRIEVAL (GET)
   if (req.method === 'GET') {
     try {
       const storedContent = await redis.get('homepage_content');
       
-      // Strict Fallback Shield: If the database is missing or empty, serve this valid structural default
+      // Strict Fallback Shield: If the database is empty, serve this valid structural default template shell
       if (!storedContent) {
         return res.status(200).json({
           hero_title: "Arshhi – Door to door beauty care",
-          profile_image: "" // Kept empty to safely fall back to your local repository image path
+          profile_image: "" // Kept empty to safely default to local repo assets if blank
         });
       }
 
-      // Safe JSON evaluation whether data was saved as a string object or raw mapping parameters
+      // Safe JSON evaluation whether data was saved as an active object or stringified text parameters
       const parsedData = typeof storedContent === 'string' ? JSON.parse(storedContent) : storedContent;
       return res.status(200).json(parsedData);
 
@@ -30,15 +31,15 @@ export default async function handler(req, res) {
     }
   }
 
-  // 2. ADMINISTRATIVE UPDATE (POST): Validates credentials and overwrites data entries safely
+  // 2. ADMINISTRATIVE LOGIN & UPDATE WORKSPACE (POST)
   if (req.method === 'POST') {
     try {
       const { content } = req.body;
       const authHeader = req.headers.authorization;
 
-      // Restrict access using your custom Vercel Project Environment Variable
+      // Restrict unauthorized access using your secure Vercel Project Environment Variable
       if (!authHeader || authHeader !== `Bearer ${process.env.ADMIN_SECRET_KEY}`) {
-        return res.status(401).json({ error: "Unauthorized access blocked." });
+        return res.status(401).json({ error: "Unauthorized access blocked. Password verification failed." });
       }
 
       // Save the website layout JSON object into Upstash Redis under the primary key target
