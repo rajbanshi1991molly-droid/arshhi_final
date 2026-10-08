@@ -54,7 +54,7 @@ textarea{resize:vertical;min-height:70px}
 @media (max-width:620px){.row2,.row3{grid-template-columns:1fr}.card{padding:16px}}
 </style>
 </head>
-<body><div style="background:#fff3cd;color:#664d03;padding:8px 14px;font:14px system-ui">Preview only. Saving is simulated and nothing is sent to your site.</div>
+<body>
 <main>
 
 <section id="loginSection" class="card login" aria-labelledby="loginTitle">
@@ -89,15 +89,6 @@ textarea{resize:vertical;min-height:70px}
 </main>
 
 <script>
-(function(){
-var sample={customSections:[{id:'x-offers',n:'Offers',t:'Festive offers',d:'Special prices this month.',nav:true,items:[{t:'Bridal package',d:'Makeup, hair and draping.',p:'\u20B94,500'},{t:'Facial combo',d:'Facial plus manicure.',p:'\u20B91,200'}]}]};
-var realFetch=window.fetch;
-window.fetch=function(u,o){
-  if(String(u).indexOf('/api/get-content')>-1)return Promise.resolve(new Response(JSON.stringify({content:JSON.stringify(sample)}),{status:200,headers:{'Content-Type':'application/json'}}));
-  if(String(u).indexOf('/api/save-content')>-1){try{sample=JSON.parse(JSON.parse(o.body).content)}catch(e){}return Promise.resolve(new Response('{}',{status:200,headers:{'Content-Type':'application/json'}}))}
-  return realFetch.apply(this,arguments);
-};
-})();
 (function(){
 'use strict';
 
@@ -201,7 +192,7 @@ var $=function(id){return document.getElementById(id)};
 var clone=function(o){return JSON.parse(JSON.stringify(o))};
 var stored={}, state=null, dirty=false, loadedOk=false;
 
-function getTok(){return 'preview'}
+function getTok(){try{return localStorage.getItem(TOKEN_KEY)||''}catch(e){return ''}}
 function setTok(v){try{localStorage.setItem(TOKEN_KEY,v)}catch(e){}}
 function delTok(){try{localStorage.removeItem(TOKEN_KEY)}catch(e){}}
 
@@ -622,7 +613,7 @@ $('discardBtn').addEventListener('click',function(){
 });
 window.addEventListener('beforeunload',function(e){if(dirty){e.preventDefault();e.returnValue=''}});
 
-enterPanel();
+if(getTok())enterPanel();else showLogin('');
 })();
 </script>
 </body>
