@@ -729,6 +729,41 @@ s.animate([{transform:'translate(-50%,-50%) scale(1)',opacity:.9},{transform:'tr
 })();
 </script>
   <script src="/social.js"></script>
+<script>
+  async function connectToGetContentAPI() {
+    try {
+      // Bypasses static proxy cache states using a dynamic microsecond clock query token
+      const response = await fetch('/api/get-content?cb=' + new Date().getTime(), {
+        cache: "no-store"
+      });
+      const data = await response.json();
+
+      if (data && !data.error) {
+        // 1. Safely bind live text headers
+        if (data.hero_title) {
+          const titleTag = document.getElementById('hero-title');
+          if (titleTag) titleTag.innerText = data.hero_title;
+        }
+
+        // 2. STABLE PHOTO ISOLATION LAYER: Prevents layout grid crashes if string format drops out
+        const visualAssetTag = document.getElementById('live-profile-image');
+        if (visualAssetTag) {
+          if (data.profile_image && typeof data.profile_image === 'string' && data.profile_image.trim() !== "") {
+            visualAssetTag.src = data.profile_image;
+          } else {
+            // Keep your reliable local image path from the assets folder if database string is empty
+            visualAssetTag.src = "images/default-profile.jpg"; 
+          }
+        }
+      }
+    } catch (connectionError) {
+      console.warn("API route dropped out. Maintaining original static fallback layouts.", connectionError);
+    }
+  }
+
+  // Bind execution to process automatically as soon as the DOM renders in the viewport
+  window.addEventListener('DOMContentLoaded', connectToGetContentAPI);
+</script>
 
 </body>
 </html>
