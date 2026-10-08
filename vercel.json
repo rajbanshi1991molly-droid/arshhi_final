@@ -1,21 +1,46 @@
-{
-  "cleanUrls": true,
-  "rewrites": [
-    {
-      "source": "/api/:path*",
-      "destination": "/api/:path*"
-    },
-    {
-      "source": "/admin",
-      "destination": "/adminhtml"
-    },
-    {
-      "source": "/socialjs",
-      "destination": "/socialjs"
-    },
-    {
-      "source": "/((?!api|admin|socialjs)*)" ,
-      "destination": "/indexhtml"
+import { Redis } from '@upstash/redis';
+import jwt from 'jsonwebtoken';
+
+const redis = Redis.fromEnv();
+
+export default async function handler(req, res) {
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+
+  const SECRET = process.env.JWT_SECRET;
+  if (!SECRET) return res.status(500).json({ error: 'JWT_SECRET is not set on the server' });
+
+  const { action, username, password, currentPassword, newPassword } = req.body || {};
+
+  try {
+    const masterUser = process.env.ADMIN_USERNAME || 'admin';
+    const saved = await redis.get('admin_password');
+    const masterPass = String(saved != null ? saved : (process.env.ADMIN_PASSWORD || 'password123'));
+
+    if (action === 'login') {
+      if (username === masterUser && String(password) === masterPass) {
+        const token = jwt.sign({ user: username }, SECRET, { expiresIn: '1d' });
+        return res.status(200).json({ token });
+      }
+      return res.status(401).json({ error: 'Invalid username or password' });
     }
-  ]
+
+    if (action === 'changePassword') {
+      const token = req.headers.authorization?.split(' ')[1];
+      if (!token) return res.status(401).json({ error: 'Unauthorized' });
+      try { jwt.verify(token, SECRET); }
+      catch { return res.status(401).json({ error: 'Session expired' }); }
+
+      if (String(currentPassword) !== masterPass)
+        return res.status(400).json({ error: 'Current password is incorrect' });
+      if (!newPassword || String(newPassword).length < 8)
+        return res.status(400).json({ error: 'New password must be at least 8 characters' });
+
+      await redis.set('admin_password', String(newPassword));
+      return res.status(200).json({ success: true });
+    }
+
+    return res.status(400).json({ error: 'Unknown action' });
+  } catch (err) {
+    return res.status(500).json({ error: 'Server error: ' + err.message });
+  }
 }
