@@ -1,43 +1,39 @@
-import { Redis } from '@upstash/redis';
-import jwt from 'jsonwebtoken';
+const jwt = require('jsonwebtoken');
 
-const redis = Redis.fromEnv();
+// Ensure you define JWT_SECRET and ADMIN_PASSWORD in your Vercel Environment Variables
+const JWT_SECRET = process.env.JWT_SECRET || 'fallback-super-secret-key';
 
-export default async function handler(req, res) {
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+module.exports = async (req, res) => {
+    // Enable CORS
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-  const { action, username, password, currentPassword, newPassword } = req.body;
-  const SECRET = process.env.JWT_SECRET || 'fallback-secret-key';
-
-  // Fallback defaults if variables aren't set yet
-  let masterUser = process.env.ADMIN_USERNAME || 'admin';
-  let masterPass = await redis.get('admin_password') || process.env.ADMIN_PASSWORD || 'password123';
-
-  if (action === 'login') {
-    if (username === masterUser && password === masterPass) {
-      const token = jwt.sign({ user: username }, SECRET, { expiresIn: '1d' });
-      return res.status(200).json({ token });
+    if (req.method === 'OPTIONS') {
+        return res.status(200).end();
     }
-    return res.status(401).json({ error: 'Invalid username or password' });
-  }
 
-  if (action === 'changePassword') {
+    if (req.method !== 'POST') {
+        return res.status(405).json({ message: 'Method Not Allowed' });
+    }
+
     try {
-      const token = req.headers.authorization?.split(' ')[1];
-      if (!token) return res.status(401).json({ error: 'Unauthorized' });
-      jwt.verify(token, SECRET);
+        const { username, password } = req.body;
+        const expectedPassword = process.env.ADMIN_PASSWORD;
 
-      if (currentPassword !== masterPass) {
-        return res.status(400).json({ error: 'Current password is incorrect' });
-      }
-      if (!newPassword || newPassword.length < 8) {
-        return res.status(400).json({ error: 'New password must be at least 8 characters' });
-      }
+        // Ensure environment variable is set up
+        if (!expectedPassword) {
+            return res.status(500).json({ message: 'Server configuration error: Admin password not set.' });
+        }
 
-      await redis.set('admin_password', newPassword);
-      return res.status(200).json({ success: true });
-    } catch (err) {
-      return res.status(401).json({ error: 'Session expired' });
+        // Secure validation check using environment variable
+        if (username === 'admin' && password === expectedPassword) {
+            const token = jwt.sign({ username }, JWT_SECRET, { expiresIn: '1h' });
+            return res.status(200).json({ token });
+        } else {
+            return res.status(401).json({ message: 'Invalid credentials' });
+        }
+    } catch (error) {
+        return res.status(500).json({ message: 'Internal Server Error', error: error.message });
     }
-  }
-}
+};
