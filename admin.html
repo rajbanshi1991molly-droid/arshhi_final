@@ -5,24 +5,49 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Arshhi Admin Panel</title>
     <style>
-        body { font-family: Arial, sans-serif; max-width: 600px; margin: 40px auto; padding: 20px; box-sizing: border-box; background-color: #fcfbfa; }
+        body { font-family: Arial, sans-serif; max-width: 760px; margin: 30px auto; padding: 20px 20px 110px; box-sizing: border-box; background-color: #fcfbfa; color: #2c1e14; }
         .card { border: 1px solid #e2dcd5; padding: 20px; border-radius: 8px; margin-bottom: 20px; background: #fff; }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; color: #4A3525; }
-        input[type="text"], input[type="password"], textarea { width: 100%; padding: 10px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
-        textarea { height: 100px; }
-        button { background: #4A3525; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .form-group { margin-bottom: 14px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; color: #4A3525; font-size: 14px; }
+        input[type="text"], input[type="password"], textarea, select { width: 100%; padding: 10px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; font: inherit; font-size: 14px; background: #fff; }
+        textarea { min-height: 70px; resize: vertical; }
+        button { background: #4A3525; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 14px; }
         button:hover { background: #5C4331; }
+        button.sm { padding: 6px 10px; font-size: 13px; }
+        button.ghost { background: #efe5d8; color: #4A3525; }
+        button.ghost:hover { background: #e4d5c2; }
+        button.danger { background: #a33; }
+        button.danger:hover { background: #8a2a2a; }
         .hidden { display: none; }
-        .nav-links { display: flex; justify-content: space-between; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #4A3525; }
-        .error { color: red; margin-top: 5px; font-size: 14px; }
+        .nav-links { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 2px solid #4A3525; }
+        .jump { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+        .jump a { background: #efe5d8; color: #4A3525; padding: 6px 12px; border-radius: 20px; font-size: 13px; text-decoration: none; font-weight: bold; }
+        .error { color: #c00; margin-top: 5px; font-size: 14px; }
         .success { color: green; margin-top: 5px; font-size: 14px; }
+        .hint { color: #7a6a5c; font-size: 12.5px; margin: 4px 0 0; display: block; line-height: 1.4; }
+        h3 { margin: 0 0 6px; color: #4A3525; }
+        details.item { border: 1px solid #e2dcd5; border-radius: 8px; margin-bottom: 10px; background: #fcfbfa; }
+        details.item > summary { cursor: pointer; padding: 12px 14px; font-weight: bold; color: #4A3525; }
+        .ibody { padding: 4px 14px 14px; }
+        .tools { display: flex; gap: 6px; margin-top: 6px; }
+        .sub { border-top: 1px dashed #d9cdbf; margin: 16px 0 10px; padding-top: 12px; }
+        .subrow { border: 1px solid #e6dccf; border-radius: 6px; padding: 10px; margin-bottom: 10px; background: #fff; }
+        .photo { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+        .photo input[type=file] { font-size: 12px; max-width: 220px; }
+        .thumb { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; background: #efe5d8; display: inline-flex; align-items: center; justify-content: center; color: #a67c52; }
+        .logoPrev { max-width: 160px; max-height: 130px; display: block; margin-bottom: 8px; border: 1px solid #e2dcd5; border-radius: 8px; padding: 6px; background: #fff; }
+        label.chk { font-weight: normal; display: flex; align-items: center; gap: 8px; }
+        label.chk input { width: auto; }
+        .savebar { position: fixed; left: 0; right: 0; bottom: 0; background: #fff; border-top: 2px solid #4A3525; padding: 12px 20px; display: flex; align-items: center; gap: 14px; justify-content: center; z-index: 10; }
+        .savebar .note { font-size: 14px; }
+        .note-warn { color: #b26a00; }
+        .banner { background: #fdeaea; border: 1px solid #e3b4b4; color: #8a2a2a; padding: 12px; border-radius: 6px; margin-bottom: 16px; }
     </style>
 </head>
 <body>
 
     <!-- LOGIN SECTION -->
-    <div id="loginSection" class="card">
+    <div id="loginSection" class="card" style="max-width:420px;margin:60px auto;">
         <h2>Arshhi Admin Login</h2>
         <div class="form-group">
             <label>Username</label>
@@ -41,69 +66,37 @@
         <div class="nav-links">
             <strong>Arshhi Admin Portal</strong>
             <div>
-                <a href="/" target="_blank" style="color: #4A3525; font-weight: bold;">View website</a> | 
+                <a href="/" target="_blank" style="color: #4A3525; font-weight: bold;">View website</a> |
                 <a href="#" onclick="logout()" style="color: #666;">Log out</a>
             </div>
         </div>
 
-        <!-- Dynamic Website Content Manager -->
-        <div class="card">
-            <h3>Edit Website Data</h3>
-            <div class="form-group">
-                <label>Main Headline Text</label>
-                <input type="text" id="mainHeadline" placeholder="Arshhi – Door to door beauty care">
-            </div>
-            
-            <h4 style="color: #4A3525; margin-top: 25px; border-top: 1px solid #eee; padding-top: 15px;">Social Media Links</h4>
-            <div class="form-group">
-                <label>Facebook URL</label>
-                <input type="text" id="linkFB" placeholder="https://facebook.com">
-            </div>
-            <div class="form-group">
-                <label>Instagram URL</label>
-                <input type="text" id="linkIG" placeholder="https://instagram.com">
-            </div>
-            <div class="form-group">
-                <label>YouTube URL</label>
-                <input type="text" id="linkYT" placeholder="https://youtube.com">
-            </div>
-            <div class="form-group">
-                <label>LinkedIn URL</label>
-                <input type="text" id="linkLN" placeholder="https://linkedin.com">
-            </div>
-
-            <button onclick="saveAllContent()">Save changes</button>
-            <p id="contentStatus"></p>
+        <div id="loadError" class="banner hidden">
+            Could not load the saved website content, so editing is switched off to protect your data.
+            <button class="sm" onclick="loadAll()" style="margin-left:8px">Try again</button>
         </div>
 
-        <!-- Customer Feedback -->
-        <div class="card">
-            <h3>Customer Feedback</h3>
-            <div class="form-group">
-                <label>Customer Name</label>
-                <input type="text" id="fbName" placeholder="e.g. Priya S.">
-            </div>
-            <div class="form-group">
-                <label>Rating</label>
-                <select id="fbRating" style="width:100%;padding:10px;border:1px solid #ccc;border-radius:4px;">
-                    <option value="5">5 stars</option>
-                    <option value="4">4 stars</option>
-                    <option value="3">3 stars</option>
-                    <option value="2">2 stars</option>
-                    <option value="1">1 star</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>Feedback</label>
-                <textarea id="fbText" placeholder="Customer's feedback"></textarea>
-            </div>
-            <button onclick="addFeedback()">Add feedback</button>
-            <p id="fbStatus"></p>
-            <div id="fbList" style="margin-top:20px"></div>
+        <div class="jump">
+            <a href="#secBusiness">Business</a>
+            <a href="#secSocial">Social links</a>
+            <a href="#secServices">Services</a>
+            <a href="#secSteps">Booking steps</a>
+            <a href="#secExtra">Extra sections</a>
+            <a href="#secReviews">Customer feedback</a>
+            <a href="#secPassword">Password</a>
+        </div>
+
+        <div id="editor">
+            <div class="card" id="secBusiness"></div>
+            <div class="card" id="secSocial"></div>
+            <div class="card" id="secServices"></div>
+            <div class="card" id="secSteps"></div>
+            <div class="card" id="secExtra"></div>
+            <div class="card" id="secReviews"></div>
         </div>
 
         <!-- Change Password -->
-        <div class="card">
+        <div class="card" id="secPassword">
             <h3>Change Password</h3>
             <div class="form-group">
                 <label>Current Password</label>
@@ -120,204 +113,398 @@
             <button onclick="changePassword()">Change password</button>
             <p id="passwordStatus"></p>
         </div>
+
+        <div class="savebar" id="saveBar">
+            <button id="saveBtn" onclick="saveAll()">Save all changes</button>
+            <span class="note" id="saveNote"></span>
+        </div>
     </div>
 
     <script>
         const tokenKey = 'arshhi_session_token';
+        const $ = id => document.getElementById(id);
+        const RESERVED = ['top', 'services', 'about', 'guide', 'how', 'faq', 'contact', 'svcModal', 'social', 'cart', 'root', 'data'];
+        const SOCIALS = [['facebook', 'Facebook URL', 'https://facebook.com/yourpage'], ['instagram', 'Instagram URL', 'https://instagram.com/yourpage'], ['youtube', 'YouTube URL', 'https://youtube.com/@yourchannel'], ['linkedin', 'LinkedIn URL', 'https://linkedin.com/company/yourpage']];
+        let state = null, defaultsData = {}, dirtyFlag = false;
+        const openSvc = new Set(), openSec = new Set();
 
-        window.onload = async () => {
-            if (localStorage.getItem(tokenKey)) {
-                showAdminPanel();
-            }
+        window.onload = () => {
+            if (localStorage.getItem(tokenKey)) showAdminPanel();
+            ['username', 'password'].forEach(id => $(id).addEventListener('keydown', e => { if (e.key === 'Enter') login(); }));
         };
+        window.addEventListener('beforeunload', e => { if (dirtyFlag) { e.preventDefault(); e.returnValue = ''; } });
 
-        function showAdminPanel() {
-            document.getElementById('loginSection').classList.add('hidden');
-            document.getElementById('adminPanel').classList.remove('hidden');
-            fetchCurrentContent();
-            loadFeedback();
+        /* ---------- tiny helpers ---------- */
+        function h(tag, props, ...kids) {
+            const e = document.createElement(tag);
+            for (const k in (props || {})) {
+                const v = props[k];
+                if (v === null || v === undefined || v === false) continue;
+                if (k === 'class') e.className = v;
+                else if (k === 'style') e.style.cssText = v;
+                else if (k.startsWith('on') || k === 'value') e[k] = v;
+                else e.setAttribute(k, v === true ? '' : v);
+            }
+            kids.flat().forEach(c => { if (c === null || c === undefined || c === false) return; e.append(c.nodeType ? c : document.createTextNode(c)); });
+            return e;
+        }
+        const clone = o => JSON.parse(JSON.stringify(o));
+        const T = v => String(v == null ? '' : v).trim();
+
+        function setNote(msg, cls) {
+            const n = $('saveNote');
+            n.textContent = msg; n.className = 'note ' + (cls || '');
+        }
+        function markDirty() { dirtyFlag = true; setNote('Unsaved changes', 'note-warn'); }
+
+        function field(label, obj, key, opts = {}) {
+            const el = opts.area ? h('textarea', { rows: opts.rows || 3, placeholder: opts.ph || '' }) : h('input', { type: 'text', placeholder: opts.ph || '' });
+            el.value = obj[key] == null ? '' : obj[key];
+            el.oninput = () => { obj[key] = el.value; if (opts.onInput) opts.onInput(el.value); markDirty(); };
+            return h('div', { class: 'form-group' }, h('label', null, label), el, opts.hint ? h('small', { class: 'hint' }, opts.hint) : null);
+        }
+        function linesField(label, obj, key, hint) {
+            const el = h('textarea', { rows: 4 });
+            el.value = (obj[key] || []).join('\n');
+            el.oninput = () => { obj[key] = el.value.split('\n'); markDirty(); };
+            return h('div', { class: 'form-group' }, h('label', null, label), el, hint ? h('small', { class: 'hint' }, hint) : null);
+        }
+        function move(arr, i, d) {
+            const j = i + d;
+            if (j < 0 || j >= arr.length) return false;
+            [arr[i], arr[j]] = [arr[j], arr[i]]; markDirty(); return true;
+        }
+        function tools(arr, i, rerender, label) {
+            return h('div', { class: 'tools' },
+                h('button', { type: 'button', class: 'sm ghost', title: 'Move up', onclick: () => { if (move(arr, i, -1)) rerender(); } }, '↑ Up'),
+                h('button', { type: 'button', class: 'sm ghost', title: 'Move down', onclick: () => { if (move(arr, i, 1)) rerender(); } }, '↓ Down'),
+                h('button', { type: 'button', class: 'sm danger', onclick: () => { if (confirm('Delete this ' + (label || 'item') + '?')) { arr.splice(i, 1); markDirty(); rerender(); } } }, 'Delete'));
+        }
+        function imgToDataUrl(file, maxW, maxH, mime, q, cover) {
+            return new Promise((res, rej) => {
+                const url = URL.createObjectURL(file), im = new Image();
+                im.onload = () => {
+                    const w = im.naturalWidth, hgt = im.naturalHeight, c = document.createElement('canvas'), ctx = c.getContext('2d');
+                    if (cover) {
+                        c.width = maxW; c.height = maxH;
+                        const s = Math.max(maxW / w, maxH / hgt), dw = w * s, dh = hgt * s;
+                        ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, maxW, maxH);
+                        ctx.drawImage(im, (maxW - dw) / 2, (maxH - dh) / 2, dw, dh);
+                    } else {
+                        const s = Math.min(1, maxW / w, maxH / hgt);
+                        c.width = Math.round(w * s); c.height = Math.round(hgt * s);
+                        ctx.drawImage(im, 0, 0, c.width, c.height);
+                    }
+                    URL.revokeObjectURL(url);
+                    let out = c.toDataURL(mime, q);
+                    if (mime === 'image/webp' && !out.startsWith('data:image/webp')) out = c.toDataURL('image/png');
+                    res(out);
+                };
+                im.onerror = () => { URL.revokeObjectURL(url); rej(new Error('Could not read that image.')); };
+                im.src = url;
+            });
         }
 
+        /* ---------- login / logout ---------- */
+        function showAdminPanel() {
+            $('loginSection').classList.add('hidden');
+            $('adminPanel').classList.remove('hidden');
+            loadAll();
+        }
         function logout() {
+            dirtyFlag = false;
             localStorage.removeItem(tokenKey);
             window.location.reload();
         }
-
         async function login() {
-            const u = document.getElementById('username').value;
-            const p = document.getElementById('password').value;
-            const err = document.getElementById('loginError');
-            err.textContent = "";
-
-            const res = await fetch('/api/auth', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ action: 'login', username: u, password: p })
-            });
-            const data = await res.json();
-
-            if (res.ok) {
-                localStorage.setItem(tokenKey, data.token);
-                showAdminPanel();
-            } else {
-                err.textContent = data.error || "Login failed.";
-            }
+            const u = $('username').value, p = $('password').value, err = $('loginError');
+            err.textContent = '';
+            try {
+                const res = await fetch('/api/auth', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'login', username: u, password: p })
+                });
+                const data = await res.json();
+                if (res.ok) { localStorage.setItem(tokenKey, data.token); showAdminPanel(); }
+                else err.textContent = data.error || 'Login failed.';
+            } catch (e) { err.textContent = 'Network error. Try again.'; }
         }
 
-        async function fetchCurrentContent() {
-            const res = await fetch('/api/get-content');
-            if (res.ok) {
-                const data = await res.json();
+        /* ---------- load ---------- */
+        async function loadDefaults() {
+            // the website's own built-in content, read from the homepage
+            for (const u of ['/', '/index.html']) {
                 try {
-                    const config = typeof data.content === 'string' ? JSON.parse(data.content) : data.content;
-                    document.getElementById('mainHeadline').value = config.headline || '';
-                    document.getElementById('linkFB').value = config.facebook || '';
-                    document.getElementById('linkIG').value = config.instagram || '';
-                    document.getElementById('linkYT').value = config.youtube || '';
-                    document.getElementById('linkLN').value = config.linkedin || '';
-                } catch(e) {
-                    // Fallback if data is raw string
-                    document.getElementById('mainHeadline').value = data.content || '';
-                }
+                    const r = await fetch(u, { cache: 'no-store' });
+                    if (!r.ok) continue;
+                    const doc = new DOMParser().parseFromString(await r.text(), 'text/html');
+                    const el = doc.getElementById('data');
+                    if (el) return JSON.parse(el.textContent);
+                } catch (e) { /* try next */ }
             }
+            return {};
         }
-
-        async function saveAllContent() {
-            const status = document.getElementById('contentStatus');
-            status.className = ''; status.textContent = 'Saving...';
-            
-            // Build the clean structured data object
-            const existing = await getContent();
-            const payload = Object.assign({}, existing, {
-                headline: document.getElementById('mainHeadline').value,
-                facebook: document.getElementById('linkFB').value,
-                instagram: document.getElementById('linkIG').value,
-                youtube: document.getElementById('linkYT').value,
-                linkedin: document.getElementById('linkLN').value
-            });
-
-            const res = await fetch('/api/save-content', {
-                method: 'POST',
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem(tokenKey)}`
-                },
-                body: JSON.stringify({ content: JSON.stringify(payload) })
-            });
-
-            if (res.ok) {
-                status.className = 'success';
-                status.textContent = 'All changes and social links saved successfully!';
-            } else {
-                const data = await res.json();
-                status.className = 'error';
-                status.textContent = data.error || 'Failed to save.';
-            }
-        }
-
-        async function getContent() {
+        async function loadSaved() {
             const res = await fetch('/api/get-content?cb=' + Date.now(), { cache: 'no-store' });
+            if (!res.ok) throw new Error('load failed');
             const d = await res.json();
             let c = d.content;
             if (typeof c === 'string') { try { c = JSON.parse(c); } catch (e) { c = null; } }
             return (c && typeof c === 'object') ? c : {};
         }
-
-        function saveContent(c) {
-            return fetch('/api/save-content', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem(tokenKey)}`
-                },
-                body: JSON.stringify({ content: c })
-            });
+        function buildState(d, s) {
+            const c = Object.assign({}, clone(d || {}), clone(s || {}));
+            ['brand', 'tagline', 'heroTitle', 'heroText', 'phone', 'days', 'hours', 'address', 'logo'].forEach(k => { if (c[k] == null) c[k] = ''; });
+            ['services', 'steps', 'customSections', 'reviews'].forEach(k => { if (!Array.isArray(c[k])) c[k] = []; });
+            const so = Object.assign({}, c.social);
+            SOCIALS.forEach(([k]) => { so[k] = so[k] || c[k] || ''; });
+            c.social = so;
+            c.services.forEach(s => { if (!Array.isArray(s.l)) s.l = []; if (!Array.isArray(s.f)) s.f = []; });
+            c.customSections.forEach(x => { if (!Array.isArray(x.items)) x.items = []; if (x.nav === undefined) x.nav = true; });
+            return c;
         }
-
-        async function loadFeedback() {
-            const box = document.getElementById('fbList');
-            box.innerHTML = '';
-            const c = await getContent();
-            const list = Array.isArray(c.reviews) ? c.reviews : [];
-            if (!list.length) { box.textContent = 'No feedback added yet.'; return; }
-            list.forEach((r, i) => {
-                const row = document.createElement('div');
-                row.style.cssText = 'border:1px solid #e2dcd5;border-radius:6px;padding:10px;margin-bottom:10px;';
-                const n = Math.max(1, Math.min(5, parseInt(r.r, 10) || 5));
-                const t = document.createElement('div');
-                t.innerHTML = '<b></b> <span style="color:#a67c52"></span>';
-                t.querySelector('b').textContent = r.n || 'Customer';
-                t.querySelector('span').textContent = '\u2605'.repeat(n) + '\u2606'.repeat(5 - n);
-                const p = document.createElement('p');
-                p.style.margin = '6px 0';
-                p.textContent = r.c;
-                const del = document.createElement('button');
-                del.textContent = 'Delete';
-                del.style.background = '#a33';
-                del.onclick = () => deleteFeedback(i);
-                row.append(t, p, del);
-                box.appendChild(row);
-            });
-        }
-
-        async function addFeedback() {
-            const status = document.getElementById('fbStatus');
-            const name = document.getElementById('fbName').value.trim();
-            const rating = parseInt(document.getElementById('fbRating').value, 10);
-            const text = document.getElementById('fbText').value.trim();
-            if (!text) { status.className = 'error'; status.textContent = 'Please write the feedback.'; return; }
-            status.className = ''; status.textContent = 'Saving...';
-            const c = await getContent();
-            c.reviews = Array.isArray(c.reviews) ? c.reviews : [];
-            c.reviews.push({ n: name || 'Customer', r: rating, c: text });
-            const res = await saveContent(c);
-            if (res.ok) {
-                status.className = 'success'; status.textContent = 'Feedback added.';
-                document.getElementById('fbName').value = '';
-                document.getElementById('fbText').value = '';
-                loadFeedback();
-            } else {
-                const d = await res.json();
-                status.className = 'error'; status.textContent = d.error || 'Failed to save.';
+        async function loadAll() {
+            setNote('Loading...', '');
+            $('loadError').classList.add('hidden');
+            $('editor').classList.remove('hidden');
+            $('saveBtn').disabled = false;
+            try {
+                const [d, s] = await Promise.all([loadDefaults(), loadSaved()]);
+                defaultsData = d;
+                state = buildState(d, s);
+                renderAll();
+                dirtyFlag = false;
+                setNote('', '');
+            } catch (e) {
+                state = null;
+                $('loadError').classList.remove('hidden');
+                $('editor').classList.add('hidden');
+                $('saveBtn').disabled = true;
+                setNote('', '');
             }
         }
 
-        async function deleteFeedback(i) {
-            if (!confirm('Delete this feedback?')) return;
-            const c = await getContent();
-            c.reviews = (c.reviews || []).filter((_, idx) => idx !== i);
-            const res = await saveContent(c);
-            if (res.ok) loadFeedback();
+        /* ---------- render sections ---------- */
+        function renderAll() { renderBusiness(); renderSocial(); renderServices(); renderSteps(); renderExtra(); renderReviews(); }
+
+        function renderBusiness() {
+            const box = $('secBusiness'); box.textContent = '';
+            const prev = h('img', { class: 'logoPrev', alt: 'Logo' });
+            if (state.logo) prev.src = state.logo;
+            const file = h('input', { type: 'file', accept: 'image/*' });
+            file.onchange = async () => {
+                if (!file.files[0]) return;
+                try {
+                    const u = await imgToDataUrl(file.files[0], 800, 800, 'image/webp', 0.92, false);
+                    if (u.length > 700000) throw new Error('That image is too large. Please use a smaller logo.');
+                    state.logo = u; prev.src = u; markDirty();
+                } catch (e) { alert(e.message); }
+            };
+            const reset = h('button', { type: 'button', class: 'sm ghost', style: 'margin-left:8px', onclick: () => { state.logo = defaultsData.logo || ''; prev.src = state.logo; markDirty(); } }, 'Use original logo');
+            box.append(
+                h('h3', null, 'Business details'),
+                h('p', { class: 'hint' }, 'The main text of your website: header, hero section, contact and footer.'),
+                field('Business name', state, 'brand', { ph: 'Arshhi' }),
+                field('Tagline', state, 'tagline', { ph: 'Beauty, care, confidence.' }),
+                field('Main headline (hero section)', state, 'heroTitle', { ph: 'Salon care, at your doorstep' }),
+                field('Hero text', state, 'heroText', { area: true, rows: 3, hint: 'Also shown in the "Beauty care at your home" section.' }),
+                field('Phone number', state, 'phone', { ph: '7980226594', hint: '10 digits. Used for the Call and WhatsApp buttons.' }),
+                field('Open days', state, 'days', { ph: 'Open every day' }),
+                field('Hours', state, 'hours', { ph: '10 am to 8 pm' }),
+                field('Address', state, 'address', { area: true, rows: 2, hint: 'Press Enter for a new line.' }),
+                h('div', { class: 'form-group' }, h('label', null, 'Logo'), prev, file, reset,
+                    h('small', { class: 'hint' }, 'Upload a logo without a tagline line. The website writes "Beauty • Care • Confidence" under it as sharp text.'))
+            );
         }
 
+        function renderSocial() {
+            const box = $('secSocial'); box.textContent = '';
+            box.append(h('h3', null, 'Social media links'), h('p', { class: 'hint' }, 'Leave a link empty to hide its icon on the website.'));
+            SOCIALS.forEach(([k, label, ph]) => box.append(field(label, state.social, k, { ph })));
+        }
+
+        function feedbackBlock(s) {
+            const wrap = h('div', { class: 'sub' }, h('label', null, 'Client feedback shown inside this service (optional)'),
+                h('small', { class: 'hint', style: 'margin-bottom:10px' }, 'Appears in the "View details" popup of this service.'));
+            s.f.forEach((x, j) => {
+                const th = x.i ? h('img', { src: x.i, class: 'thumb', alt: '' }) : h('span', { class: 'thumb' }, '★');
+                const file = h('input', { type: 'file', accept: 'image/*' });
+                file.onchange = async () => {
+                    if (!file.files[0]) return;
+                    try { x.i = await imgToDataUrl(file.files[0], 96, 96, 'image/jpeg', 0.82, true); markDirty(); renderServices(); }
+                    catch (e) { alert(e.message); }
+                };
+                const rm = x.i ? h('button', { type: 'button', class: 'sm ghost', onclick: () => { x.i = ''; markDirty(); renderServices(); } }, 'Remove photo') : null;
+                wrap.append(h('div', { class: 'subrow' },
+                    h('div', { class: 'photo' }, th, file, rm),
+                    field('Name', x, 'n', { ph: 'e.g. Priya S.' }),
+                    field('Feedback', x, 't', { area: true, rows: 2 }),
+                    tools(s.f, j, renderServices, 'feedback')));
+            });
+            wrap.append(h('button', { type: 'button', class: 'sm', onclick: () => { s.f.push({ i: '', t: '', n: '' }); markDirty(); renderServices(); } }, '+ Add client feedback'));
+            return wrap;
+        }
+
+        function renderServices() {
+            const box = $('secServices'); box.textContent = '';
+            box.append(h('h3', null, 'Services'), h('p', { class: 'hint', style: 'margin-bottom:12px' }, 'Each service is a card on the website and also appears in "Our services in detail". Tap a service to edit it.'));
+            state.services.forEach((s, i) => {
+                const title = h('span', null, (i + 1) + '. ' + (s.n || 'New service'));
+                const det = h('details', { class: 'item' }, h('summary', null, title));
+                if (openSvc.has(s)) det.open = true;
+                det.addEventListener('toggle', () => { det.open ? openSvc.add(s) : openSvc.delete(s); });
+                det.append(h('div', { class: 'ibody' },
+                    field('Service name', s, 'n', { ph: 'e.g. Haircut', onInput: v => { title.textContent = (i + 1) + '. ' + (v || 'New service'); } }),
+                    field('Category (optional)', s, 'c', { ph: 'e.g. Hair', hint: 'If you use two or more different categories, filter buttons appear above the services.' }),
+                    field('Starting price in ₹ (optional)', s, 'p', { ph: 'e.g. 499', hint: 'Numbers only. Leave empty to show "Call for price".' }),
+                    field('Short summary (shown on the card)', s, 's', { area: true, rows: 2 }),
+                    field('Detailed description', s, 'd', { area: true, rows: 3 }),
+                    linesField("What's included (one item per line)", s, 'l'),
+                    feedbackBlock(s),
+                    tools(state.services, i, renderServices, 'service')));
+                box.append(det);
+            });
+            box.append(h('button', { type: 'button', onclick: () => { const s = { n: '', c: '', p: '', s: '', d: '', l: [], f: [] }; state.services.push(s); openSvc.add(s); markDirty(); renderServices(); } }, '+ Add service'));
+        }
+
+        function renderSteps() {
+            const box = $('secSteps'); box.textContent = '';
+            box.append(h('h3', null, 'How booking works'), h('p', { class: 'hint', style: 'margin-bottom:12px' }, 'The numbered steps in the booking section.'));
+            state.steps.forEach((x, i) => {
+                box.append(h('div', { class: 'subrow' },
+                    field('Step ' + (i + 1) + ' title', x, 't'),
+                    field('Step ' + (i + 1) + ' text', x, 'd', { area: true, rows: 2 }),
+                    tools(state.steps, i, renderSteps, 'step')));
+            });
+            box.append(h('button', { type: 'button', onclick: () => { state.steps.push({ t: '', d: '' }); markDirty(); renderSteps(); } }, '+ Add step'));
+        }
+
+        function renderExtra() {
+            const box = $('secExtra'); box.textContent = '';
+            box.append(h('h3', null, 'Extra sections'), h('p', { class: 'hint', style: 'margin-bottom:12px' }, 'Add your own sections, for example a price list, offers or policies. They appear after "How booking works" and can be added to the top menu.'));
+            state.customSections.forEach((c, i) => {
+                const title = h('span', null, (i + 1) + '. ' + (c.t || c.n || 'New section'));
+                const det = h('details', { class: 'item' }, h('summary', null, title));
+                if (openSec.has(c)) det.open = true;
+                det.addEventListener('toggle', () => { det.open ? openSec.add(c) : openSec.delete(c); });
+                const cb = h('input', { type: 'checkbox' });
+                cb.checked = c.nav !== false;
+                cb.onchange = () => { c.nav = cb.checked; markDirty(); };
+                const body = h('div', { class: 'ibody' },
+                    field('Section title', c, 't', { ph: 'e.g. Price list', onInput: v => { title.textContent = (i + 1) + '. ' + (v || c.n || 'New section'); } }),
+                    field('Menu name', c, 'n', { ph: 'e.g. Prices', hint: 'Short name for the top menu.' }),
+                    h('div', { class: 'form-group' }, h('label', { class: 'chk' }, cb, 'Show in the top menu')),
+                    field('Intro text (optional)', c, 'd', { area: true, rows: 2 }));
+                const sub = h('div', { class: 'sub' }, h('label', null, 'Items in this section'));
+                c.items.forEach((x, j) => {
+                    sub.append(h('div', { class: 'subrow' },
+                        field('Item title', x, 't'),
+                        field('Price or label (optional)', x, 'p', { ph: 'e.g. ₹499' }),
+                        field('Description', x, 'd', { area: true, rows: 2 }),
+                        tools(c.items, j, renderExtra, 'item')));
+                });
+                sub.append(h('button', { type: 'button', class: 'sm', onclick: () => { c.items.push({ t: '', p: '', d: '' }); openSec.add(c); markDirty(); renderExtra(); } }, '+ Add item'));
+                body.append(sub, tools(state.customSections, i, renderExtra, 'section'));
+                det.append(body);
+                box.append(det);
+            });
+            box.append(h('button', { type: 'button', onclick: () => { const c = { id: '', n: '', t: '', d: '', nav: true, items: [] }; state.customSections.push(c); openSec.add(c); markDirty(); renderExtra(); } }, '+ Add section'));
+        }
+
+        function renderReviews() {
+            const box = $('secReviews'); box.textContent = '';
+            box.append(h('h3', null, 'Customer feedback'), h('p', { class: 'hint', style: 'margin-bottom:12px' }, 'Shown side by side under "What our customers say" at the top of the website.'));
+            state.reviews.forEach((r, i) => {
+                const sel = h('select', null, ...[5, 4, 3, 2, 1].map(n => h('option', { value: n }, n + (n === 1 ? ' star' : ' stars'))));
+                sel.value = String(Math.max(1, Math.min(5, Math.round(+r.r) || 5)));
+                r.r = +sel.value;
+                sel.onchange = () => { r.r = +sel.value; markDirty(); };
+                box.append(h('div', { class: 'subrow' },
+                    field('Customer name', r, 'n', { ph: 'e.g. Priya S.' }),
+                    h('div', { class: 'form-group' }, h('label', null, 'Rating'), sel),
+                    field('Feedback', r, 'c', { area: true, rows: 3 }),
+                    tools(state.reviews, i, renderReviews, 'feedback')));
+            });
+            if (!state.reviews.length) box.append(h('p', { class: 'hint', style: 'margin-bottom:12px' }, 'No feedback added yet.'));
+            box.append(h('button', { type: 'button', onclick: () => { state.reviews.push({ n: '', r: 5, c: '' }); markDirty(); renderReviews(); } }, '+ Add feedback'));
+        }
+
+        /* ---------- save ---------- */
+        function normalize() {
+            const c = clone(state);
+            ['brand', 'tagline', 'heroTitle', 'heroText', 'phone', 'days', 'hours', 'address'].forEach(k => { c[k] = T(c[k]); });
+            c.services = c.services.filter(s => T(s.n)).map(s => {
+                const o = { n: T(s.n), s: T(s.s), d: T(s.d), l: (s.l || []).map(T).filter(Boolean) };
+                if (T(s.c)) o.c = T(s.c);
+                if (T(s.p)) o.p = T(s.p).replace(/^\s*(\u20B9|rs\.?|inr)\s*/i, '');
+                const f = (s.f || []).map(x => ({ i: x.i || '', t: T(x.t), n: T(x.n) })).filter(x => x.i || x.t || x.n);
+                if (f.length) o.f = f;
+                return o;
+            });
+            c.steps = c.steps.map(x => ({ t: T(x.t), d: T(x.d) })).filter(x => x.t || x.d);
+            c.reviews = c.reviews.map(r => ({ n: T(r.n) || 'Customer', r: Math.max(1, Math.min(5, Math.round(+r.r) || 5)), c: T(r.c) })).filter(r => r.c);
+            const used = new Set(RESERVED);
+            c.customSections = c.customSections.map(x => ({ id: T(x.id), n: T(x.n), t: T(x.t), d: T(x.d), nav: x.nav !== false, items: (x.items || []).map(it => ({ t: T(it.t), p: T(it.p), d: T(it.d) })).filter(it => it.t || it.d) }))
+                .filter(x => x.n || x.t)
+                .map((x, i) => {
+                    let id = x.id.toLowerCase().replace(/[^a-z0-9-]+/g, '-').replace(/^-+|-+$/g, '');
+                    if (!id || used.has(id)) {
+                        const base = (x.n || x.t).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'section-' + (i + 1);
+                        id = base; let n = 2;
+                        while (used.has(id)) id = base + '-' + (n++);
+                    }
+                    used.add(id); x.id = id; return x;
+                });
+            const so = {};
+            SOCIALS.forEach(([k]) => { so[k] = T(c.social[k]); c[k] = so[k]; });
+            c.social = so;
+            delete c.headline;
+            return c;
+        }
+        function validate(c) {
+            if (!c.brand) return 'Please enter the business name.';
+            if (c.phone.replace(/\D/g, '').length < 10) return 'Please enter a valid 10-digit phone number.';
+            if (!c.services.length) return 'Add at least one service (with a name) before saving.';
+            return '';
+        }
+        async function saveAll() {
+            if (!state) return;
+            const c = normalize(), err = validate(c);
+            if (err) { setNote(err, 'error'); return; }
+            setNote('Saving...', '');
+            try {
+                const res = await fetch('/api/save-content', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem(tokenKey)}` },
+                    body: JSON.stringify({ content: c })
+                });
+                if (res.status === 401) { setNote('Session expired. Please log in again.', 'error'); dirtyFlag = false; setTimeout(logout, 1800); return; }
+                if (!res.ok) { const d = await res.json().catch(() => ({})); setNote(d.error || 'Failed to save.', 'error'); return; }
+                dirtyFlag = false;
+                setNote('All changes saved. Reload the website to see them.', 'success');
+            } catch (e) { setNote('Network error. Nothing was saved.', 'error'); }
+        }
+
+        /* ---------- password ---------- */
         async function changePassword() {
-            const status = document.getElementById('passwordStatus');
+            const status = $('passwordStatus');
             status.className = ''; status.textContent = '';
-            const current = document.getElementById('currPass').value;
-            const newP = document.getElementById('newPass').value;
-            const repeat = document.getElementById('repeatPass').value;
-
-            if (newP !== repeat) {
-                status.className = 'error';
-                status.textContent = "New passwords don't match.";
-                return;
-            }
-
+            const current = $('currPass').value, newP = $('newPass').value, repeat = $('repeatPass').value;
+            if (newP !== repeat) { status.className = 'error'; status.textContent = "New passwords don't match."; return; }
+            if (newP.length < 8) { status.className = 'error'; status.textContent = 'New password must be at least 8 characters.'; return; }
             const res = await fetch('/api/auth', {
                 method: 'POST',
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem(tokenKey)}`
-                },
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem(tokenKey)}` },
                 body: JSON.stringify({ action: 'changePassword', currentPassword: current, newPassword: newP })
             });
-
             if (res.ok) {
                 status.className = 'success';
                 status.textContent = 'Password updated! Logging out...';
+                dirtyFlag = false;
                 setTimeout(logout, 2000);
             } else {
-                const data = await res.json();
+                const data = await res.json().catch(() => ({}));
                 status.className = 'error';
                 status.textContent = data.error || 'Update failed.';
             }
