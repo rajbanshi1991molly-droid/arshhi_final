@@ -247,6 +247,10 @@ function buildState(){
     var n=Math.max(1,Math.min(5,Math.round(+r.r)||5));
     return Object.assign({},r,{n:String(r.n||''),r:n,c:String(r.c||'')});
   });
+  st.customSections=(Array.isArray(stored.customSections)?clone(stored.customSections):[]).filter(function(c){return c&&typeof c==='object'}).map(function(c){
+    return Object.assign({},c,{id:String(c.id||''),n:String(c.n||''),t:String(c.t||''),d:String(c.d||''),nav:c.nav!==false,
+      items:(Array.isArray(c.items)?c.items:[]).map(function(x){x=x||{};return Object.assign({},x,{t:String(x.t||''),p:String(x.p||''),d:String(x.d||'')})})});
+  });
   var so=(stored.social&&typeof stored.social==='object')?stored.social:{};
   ['facebook','instagram','youtube','linkedin'].forEach(function(k){st[k]=String(stored[k]||so[k]||'')});
   return st;
@@ -309,6 +313,45 @@ function reviewCard(r,i,n){
     fld('Comment',a('c',{rows:3}),r.c,true,'Reviews without a comment are not shown.')
   );
 }
+function sbtn(label,act,i,j,extra){
+  var b=h('button',Object.assign({type:'button',class:'mini','data-sact':act,'data-seg':i,text:label},extra||{}));
+  if(j!==undefined)b.setAttribute('data-it',j);
+  return b;
+}
+function segItemCard(x,i,j,m){
+  var a=function(f,extra){return Object.assign({'data-seg':i,'data-it':j,'data-sf':f},extra||{})};
+  var rm=sbtn('Remove','remove-item',i,j,{class:'mini del','aria-label':'Remove item '+(j+1)+' of segment '+(i+1)});
+  return h('div',{class:'item'},
+    h('div',{class:'ih'},h('h3',{text:'Item '+(j+1)+(x.t?': '+x.t:'')}),h('div',{class:'ctl'},rm)),
+    h('div',{class:'row2'},
+      fld('Title',a('t'),x.t),
+      fld('Price or label',a('p'),x.p,false,'Optional. For example: Starting \u20B9500')
+    ),
+    fld('Description',a('d',{rows:3}),x.d,true,'Optional.')
+  );
+}
+function segmentCard(c,i,n){
+  var a=function(f,extra){return Object.assign({'data-seg':i,'data-sf':f},extra||{})};
+  var up=sbtn('Up','up',i,undefined,{'aria-label':'Move segment '+(i+1)+' up'}),
+      dn=sbtn('Down','down',i,undefined,{'aria-label':'Move segment '+(i+1)+' down'}),
+      rm=sbtn('Remove','remove',i,undefined,{class:'mini del','aria-label':'Remove segment '+(i+1)});
+  if(i===0)up.disabled=true;
+  if(i===n-1)dn.disabled=true;
+  var chk=h('input',Object.assign({type:'checkbox',style:'width:auto;margin-right:8px'},a('nav')));
+  if(c.nav)chk.checked=true;
+  var items=c.items.length?c.items.map(function(x,j){return segItemCard(x,i,j,c.items.length)}):[h('p',{class:'empty',text:'No items yet. Add one, or leave this segment as a heading with text only.'})];
+  return h('div',{class:'item'},
+    h('div',{class:'ih'},h('h3',{text:'Segment '+(i+1)+((c.t||c.n)?': '+(c.t||c.n):'')}),h('div',{class:'ctl'},up,dn,rm)),
+    h('div',{class:'row2'},
+      fld('Navbar name',a('n'),c.n,false,'The short word shown in the website menu.'),
+      fld('Page heading',a('t'),c.t,false,'The big heading of the segment on the page.')
+    ),
+    fld('Intro text',a('d',{rows:2}),c.d,true,'Optional. Shown under the heading.'),
+    h('label',{class:'f'},h('span',{class:'lb'},chk,'Show in the website menu (navbar)')),
+    h('div',null,items),
+    sbtn('Add an item','add-item',i,undefined,{class:'btn ghost'})
+  );
+}
 function itemsOrEmpty(arr,fn,emptyText){
   if(!arr.length)return h('p',{class:'empty',text:emptyText});
   var frag=document.createDocumentFragment();
@@ -348,6 +391,10 @@ function renderForm(){
     section('Customer reviews','Shown under "What our customers say".',
       itemsOrEmpty(state.reviews,reviewCard,'No reviews yet. Add one to show it on the website.'),
       addBtn('reviews','Add a review')
+    ),
+    section('Extra segments','Each segment you add becomes a new section on your website and a new link in the website menu.',
+      itemsOrEmpty(state.customSections,segmentCard,'No extra segments yet.'),
+      h('button',{type:'button',class:'btn ghost','data-sact':'add'},'Add segment')
     )
   );
 }
@@ -395,6 +442,38 @@ $('form').addEventListener('click',function(e){
   if(el)el.focus();
 });
 
+/* ---------- extra segments: editing ---------- */
+$('form').addEventListener('input',function(e){
+  var t=e.target,d=t.dataset;
+  if(!d||d.seg===undefined||!d.sf)return;
+  var c=state.customSections[+d.seg];if(!c)return;
+  var v=t.type==='checkbox'?t.checked:t.value;
+  if(d.it!==undefined){var it=c.items[+d.it];if(!it)return;it[d.sf]=v}
+  else c[d.sf]=v;
+  markDirty();
+});
+$('form').addEventListener('click',function(e){
+  var b=e.target.closest('button[data-sact]');
+  if(!b)return;
+  var act=b.dataset.sact,i=+b.dataset.seg,j=+b.dataset.it,list=state.customSections,c=list[i],sel=null;
+  if(act==='add'){list.push({id:'',n:'',t:'',d:'',nav:true,items:[]});sel='[data-seg="'+(list.length-1)+'"][data-sf="n"]'}
+  else if(act==='remove'){
+    if(!confirm('Remove this segment? It disappears from your website and menu after you save.'))return;
+    list.splice(i,1);sel='button[data-sact="add"]';
+  }
+  else if(act==='up'&&i>0){var a=list[i-1];list[i-1]=list[i];list[i]=a;sel='button[data-sact="up"][data-seg="'+(i-1)+'"]:not(:disabled)'}
+  else if(act==='down'&&i<list.length-1){var z=list[i+1];list[i+1]=list[i];list[i]=z;sel='button[data-sact="down"][data-seg="'+(i+1)+'"]:not(:disabled)'}
+  else if(act==='add-item'&&c){c.items.push({t:'',p:'',d:''});sel='[data-seg="'+i+'"][data-it="'+(c.items.length-1)+'"][data-sf="t"]'}
+  else if(act==='remove-item'&&c){
+    if(!confirm('Remove this item? It disappears from your website after you save.'))return;
+    c.items.splice(j,1);sel='button[data-sact="add-item"][data-seg="'+i+'"]';
+  }
+  else return;
+  renderForm();markDirty();
+  var el=sel&&document.querySelector(sel);
+  if(el)el.focus();
+});
+
 /* ---------- checking and saving ---------- */
 function cleanUrl(label,v,errors){
   v=String(v||'').trim();
@@ -431,6 +510,25 @@ function buildPayload(base){
   out.steps=s.steps.map(function(x){return Object.assign({},x,{t:x.t.trim(),d:x.d.trim()})}).filter(function(x){return x.t||x.d});
   out.reviews=s.reviews.map(function(x){return Object.assign({},x,{n:x.n.trim(),c:x.c.trim(),r:Math.max(1,Math.min(5,+x.r||5))})}).filter(function(x){return x.n||x.c});
 
+  var RESERVED=['top','services','about','guide','how','faq','contact','svcList'],usedIds=[];
+  s.customSections.forEach(function(x){if(x.id)usedIds.push(x.id)});
+  out.customSections=s.customSections.map(function(x,i){
+    var o=Object.assign({},x);
+    o.n=String(x.n).trim();o.t=String(x.t).trim();o.d=String(x.d).trim();
+    if(!o.n&&!o.t){errors.push('Segment '+(i+1)+' needs a navbar name or a page heading.');return null}
+    if(!o.n)o.n=o.t;
+    if(!o.t)o.t=o.n;
+    o.nav=x.nav!==false;
+    o.items=x.items.map(function(y){return Object.assign({},y,{t:String(y.t).trim(),p:String(y.p).trim(),d:String(y.d).trim()})})
+      .filter(function(y){return y.t||y.d});
+    o.items.forEach(function(y){if(!y.p)delete y.p});
+    if(!o.id||RESERVED.indexOf(o.id)>=0){
+      var base='seg-'+(o.n.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'')||'section'),id=base,k=2;
+      while(usedIds.indexOf(id)>=0||RESERVED.indexOf(id)>=0){id=base+'-'+k++}
+      usedIds.push(id);o.id=id;x.id=id;
+    }
+    return o;
+  }).filter(Boolean);
   out.facebook=cleanUrl('Facebook',s.facebook,errors);
   out.instagram=cleanUrl('Instagram',s.instagram,errors);
   out.youtube=cleanUrl('YouTube',s.youtube,errors);
