@@ -1,55 +1,19 @@
-import { Redis } from '@upstash/redis';
+import { redis, CONTENT_KEY, parseContent } from './_lib.js';
 
-// Securely boots up your fresh Upstash connection using native Vercel credentials
-const redis = Redis.fromEnv();
-
+// Public, read-only. Returns { content: <saved site data or null> }.
+// The homepage (index.html) and the admin panel both read the "content" field.
+// Saving is done by /api/save-content (login required).
 export default async function handler(req, res) {
-  
-  // 1. FRONTEND DATA RETRIEVAL (GET)
-  if (req.method === 'GET') {
-    try {
-      const storedContent = await redis.get('homepage_content');
-      
-      // Strict Fallback Shield: If the database is empty, serve this valid structural default template shell
-      if (!storedContent) {
-        return res.status(200).json({
-          hero_title: "Arshhi – Door to door beauty care",
-          profile_image: "" // Kept empty to safely default to local repo assets if blank
-        });
-      }
+  if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
 
-      // Safe JSON evaluation whether data was saved as an active object or stringified text parameters
-      const parsedData = typeof storedContent === 'string' ? JSON.parse(storedContent) : storedContent;
-      return res.status(200).json(parsedData);
+  res.setHeader('Cache-Control', 'no-store, max-age=0');
 
-    } catch (err) {
-      // Emergency default response structure so the homepage never shatters if Upstash drops offline
-      return res.status(200).json({
-        hero_title: "Arshhi – Door to door beauty care",
-        profile_image: ""
-      });
-    }
+  try {
+    const raw = await redis.get(CONTENT_KEY);
+    const content = parseContent(raw);
+    return res.status(200).json({ content: content && typeof content === 'object' ? content : null });
+  } catch (err) {
+    // Redis unreachable: homepage keeps its built-in content; admin shows a load error.
+    return res.status(500).json({ error: 'Could not read content', content: null });
   }
-
-  // 2. ADMINISTRATIVE LOGIN & UPDATE WORKSPACE (POST)
-  if (req.method === 'POST') {
-    try {
-      const { content } = req.body;
-      const authHeader = req.headers.authorization;
-
-      // Restrict unauthorized access using your secure Vercel Project Environment Variable
-      if (!authHeader || authHeader !== `Bearer ${process.env.ADMIN_SECRET_KEY}`) {
-        return res.status(401).json({ error: "Unauthorized access blocked. Password verification failed." });
-      }
-
-      // Save the website layout JSON object into Upstash Redis under the primary key target
-      await redis.set('homepage_content', JSON.stringify(content));
-      return res.status(200).json({ success: true, message: "Database updated successfully!" });
-
-    } catch (err) {
-      return res.status(500).json({ error: "Failed to write updates down to Redis" });
-    }
-  }
-
-  return res.status(405).json({ error: 'Method not allowed' });
 }
