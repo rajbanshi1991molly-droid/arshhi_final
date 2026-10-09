@@ -46,8 +46,10 @@
             </div>
         </div>
 
+        <div id="adminNav" style="position:sticky;top:0;z-index:5;background:#fcfbfa;padding:8px 0 10px;margin-bottom:15px;border-bottom:1px solid #e2dcd5;display:flex;flex-wrap:wrap;gap:6px 14px;font-size:14px"></div>
+
         <!-- Dynamic Website Content Manager -->
-        <div class="card">
+        <div class="card" id="sec-social">
             <h3>Edit Website Data</h3>
             <div class="form-group">
                 <label>Main Headline Text</label>
@@ -76,44 +78,63 @@
             <p id="contentStatus"></p>
         </div>
 
-        <!-- Website Segments -->
-        <div class="card">
-            <h3>Website Segments</h3>
-            <p style="font-size:14px;color:#666;margin-top:0">Add a new segment. It appears in the website navbar and as its own section with service cards (price, View details and Add button).</p>
-            <button id="segOpenBtn" onclick="openSegForm()">+ Add segment</button>
-
-            <div id="segForm" class="hidden" style="margin-top:20px;border-top:1px solid #eee;padding-top:15px">
-                <div class="form-group">
-                    <label>Navbar Name</label>
-                    <input type="text" id="segNav" placeholder="e.g. Bridal">
-                </div>
-                <div class="form-group">
-                    <label>Segment Heading</label>
-                    <input type="text" id="segTitle" placeholder="e.g. Bridal packages at home">
-                </div>
-                <div class="form-group">
-                    <label>Description</label>
-                    <textarea id="segDesc" placeholder="Short text shown under the heading"></textarea>
-                </div>
-                <div class="form-group">
-                    <label style="display:flex;align-items:center;gap:8px;font-weight:normal">
-                        <input type="checkbox" id="segShowNav" checked style="width:auto"> Show in navbar
-                    </label>
-                </div>
-                <label>Services / items in this segment</label>
-                <div id="segItems"></div>
-                <button type="button" onclick="addSegItem()" style="background:#a67c52;margin-bottom:15px">+ Add item</button>
-                <div>
-                    <button onclick="saveSegment()" id="segSaveBtn">Save segment</button>
-                    <button onclick="closeSegForm()" style="background:#888">Cancel</button>
-                </div>
-            </div>
-            <p id="segStatus"></p>
-            <div id="segList" style="margin-top:20px"></div>
+        <!-- Hero & Brand -->
+        <div class="card" id="sec-hero">
+            <h3>Top Section (Hero)</h3>
+            <div class="form-group"><label>Brand Name</label><input type="text" id="hBrand"></div>
+            <div class="form-group"><label>Tagline</label><input type="text" id="hTagline"></div>
+            <div class="form-group"><label>Hero Title</label><input type="text" id="hTitle"></div>
+            <div class="form-group"><label>Hero Text</label><textarea id="hText"></textarea></div>
+            <button onclick="saveHero()">Save top section</button>
+            <p class="st" id="hStatus"></p>
         </div>
 
+        <!-- Contact & Hours -->
+        <div class="card" id="sec-contact">
+            <h3>Contact &amp; Hours</h3>
+            <div class="form-group"><label>Phone Number</label><input type="text" id="cPhone"></div>
+            <div class="form-group"><label>Open Days</label><input type="text" id="cDays" placeholder="Open every day"></div>
+            <div class="form-group"><label>Hours</label><input type="text" id="cHours" placeholder="10 am to 8 pm"></div>
+            <div class="form-group"><label>Address</label><textarea id="cAddress"></textarea></div>
+            <button onclick="saveContact()">Save contact details</button>
+            <p class="st" id="cStatus"></p>
+        </div>
+
+        <!-- Services -->
+        <div class="card" id="sec-services">
+            <h3>Services</h3>
+            <p style="font-size:14px;color:#666;margin-top:0">These are the service cards in "Book your service at home" and "Our services in detail".</p>
+            <div id="svcRows"></div>
+            <button type="button" onclick="addServiceRow()" style="background:#a67c52;margin-bottom:15px">+ Add service</button><br>
+            <button onclick="saveServices()">Save services</button>
+            <p class="st" id="svStatus"></p>
+        </div>
+
+        <!-- Booking steps -->
+        <div class="card" id="sec-steps">
+            <h3>How Booking Works</h3>
+            <div id="stepRows"></div>
+            <button type="button" onclick="addStepRow()" style="background:#a67c52;margin-bottom:15px">+ Add step</button><br>
+            <button onclick="saveSteps()">Save steps</button>
+            <p class="st" id="stStatus"></p>
+        </div>
+
+        <!-- Segments -->
+        <div class="card" id="sec-segments">
+            <h3>Segments</h3>
+            <p style="font-size:14px;color:#666;margin-top:0">Add a new segment. It appears in the website navbar, as its own section on the page, and as its own editor below.</p>
+            <button id="newSegBtn" onclick="showNewSeg()">+ Add new segment</button>
+            <div id="newSegBox" class="hidden" style="margin-top:15px">
+                <div class="form-group"><label>Segment Name (shown in navbar)</label><input type="text" id="newSegName" placeholder="e.g. Bridal"></div>
+                <button onclick="createSegment()">Create segment</button>
+                <button onclick="hideNewSeg()" style="background:#888">Cancel</button>
+            </div>
+            <p class="st" id="newSegStatus"></p>
+        </div>
+        <div id="segCards"></div>
+
         <!-- Customer Feedback -->
-        <div class="card">
+        <div class="card" id="sec-feedback">
             <h3>Customer Feedback</h3>
             <div class="form-group">
                 <label>Customer Name</label>
@@ -139,7 +160,7 @@
         </div>
 
         <!-- Change Password -->
-        <div class="card">
+        <div class="card" id="sec-password">
             <h3>Change Password</h3>
             <div class="form-group">
                 <label>Current Password</label>
@@ -172,7 +193,7 @@
             document.getElementById('adminPanel').classList.remove('hidden');
             fetchCurrentContent();
             loadFeedback();
-            loadSegments();
+            loadAll();
         }
 
         function logout() {
@@ -327,58 +348,180 @@
             if (res.ok) loadFeedback();
         }
 
-        /* ---------- Website Segments ---------- */
-        let segEditIndex = -1;
+        /* ================= Site sections editor ================= */
+        let DEF = {}, SEGS = [];
 
-        function openSegForm() {
-            resetSegForm();
-            document.getElementById('segForm').classList.remove('hidden');
-            document.getElementById('segOpenBtn').classList.add('hidden');
-            addSegItem();
+        async function getDefaults() {
+            try {
+                const r = await fetch('/?cb=' + Date.now(), { cache: 'no-store' });
+                const t = await r.text();
+                const m = /<script id="data" type="application\/json">([\s\S]*?)<\/script>/.exec(t);
+                return m ? JSON.parse(m[1]) : {};
+            } catch (e) { return {}; }
         }
 
-        function closeSegForm() {
-            resetSegForm();
-            document.getElementById('segForm').classList.add('hidden');
-            document.getElementById('segOpenBtn').classList.remove('hidden');
+        function setSt(id, ok, msg) {
+            const p = typeof id === 'string' ? document.getElementById(id) : id;
+            if (!p) return;
+            p.className = 'st ' + (ok === null ? '' : (ok ? 'success' : 'error'));
+            p.textContent = msg;
         }
 
-        function addSegItem(it) {
-            it = it || {};
-            const box = document.getElementById('segItems');
+        async function patchContent(patch) {
+            const c = await getContent();
+            Object.assign(c, patch);
+            return saveContent(c);
+        }
+
+        async function loadAll() {
+            DEF = await getDefaults();
+            const cur = await getContent();
+            const E = Object.assign({}, DEF, cur);
+            const set = (id, v) => { document.getElementById(id).value = v == null ? '' : v; };
+            set('hBrand', E.brand); set('hTagline', E.tagline); set('hTitle', E.heroTitle); set('hText', E.heroText);
+            set('cPhone', E.phone); set('cDays', E.days); set('cHours', E.hours); set('cAddress', E.address);
+
+            const sv = document.getElementById('svcRows'); sv.innerHTML = '';
+            (Array.isArray(E.services) ? E.services : []).forEach(x => addServiceRow(x));
+
+            const st = document.getElementById('stepRows'); st.innerHTML = '';
+            (Array.isArray(E.steps) ? E.steps : []).forEach(x => addStepRow(x));
+
+            SEGS = Array.isArray(cur.customSections) ? cur.customSections : [];
+            renderSegments();
+        }
+
+        function refreshNav() {
+            const nav = document.getElementById('adminNav');
+            const items = [['sec-hero', 'Top'], ['sec-contact', 'Contact'], ['sec-services', 'Services'], ['sec-steps', 'Booking'], ['sec-segments', 'Segments']];
+            SEGS.forEach(sg => items.push(['segcard-' + sg.id, sg.n || sg.t]));
+            items.push(['sec-social', 'Social'], ['sec-feedback', 'Feedback'], ['sec-password', 'Password']);
+            nav.innerHTML = '';
+            items.forEach(([id, label]) => {
+                const a = document.createElement('a');
+                a.href = '#' + id; a.textContent = label;
+                a.style.cssText = 'color:#4A3525;font-weight:bold;text-decoration:none';
+                nav.appendChild(a);
+            });
+        }
+
+        /* ---- item editor (used by services and segments) ---- */
+        function itemRow(box, v, orig) {
+            v = v || {};
             const row = document.createElement('div');
-            row.className = 'seg-item';
+            row.className = 'ed-item';
+            row._orig = orig || {};
             row.style.cssText = 'border:1px solid #e2dcd5;border-radius:6px;padding:10px;margin-bottom:10px;background:#fcfbfa;';
             row.innerHTML =
-                '<input type="text" class="si-t" placeholder="Item name" style="margin-bottom:8px">' +
-                '<input type="text" class="si-c" placeholder="Category tag (optional)" style="margin-bottom:8px">' +
-                '<input type="text" class="si-p" placeholder="Price in rupees (optional), e.g. 499" style="margin-bottom:8px">' +
-                '<input type="text" class="si-s" placeholder="Short summary shown on the card" style="margin-bottom:8px">' +
-                '<textarea class="si-d" placeholder="Full details shown in View details" style="height:70px;margin-bottom:8px"></textarea>' +
-                '<textarea class="si-l" placeholder="What is included (one point per line)" style="height:70px;margin-bottom:8px"></textarea>';
-            row.querySelector('.si-t').value = it.t || '';
-            row.querySelector('.si-c').value = it.c || '';
-            row.querySelector('.si-p').value = it.p || '';
-            row.querySelector('.si-s').value = it.s || '';
-            row.querySelector('.si-d').value = it.d || '';
-            row.querySelector('.si-l').value = Array.isArray(it.l) ? it.l.join('\n') : '';
+                '<input type="text" class="i-n" placeholder="Name" style="margin-bottom:8px">' +
+                '<input type="text" class="i-c" placeholder="Category tag (optional)" style="margin-bottom:8px">' +
+                '<input type="text" class="i-p" placeholder="Price in rupees (optional), e.g. 499" style="margin-bottom:8px">' +
+                '<input type="text" class="i-s" placeholder="Short summary shown on the card" style="margin-bottom:8px">' +
+                '<textarea class="i-d" placeholder="Full details shown in View details" style="height:70px;margin-bottom:8px"></textarea>' +
+                '<textarea class="i-l" placeholder="What is included (one point per line)" style="height:70px;margin-bottom:8px"></textarea>';
+            row.querySelector('.i-n').value = v.n || '';
+            row.querySelector('.i-c').value = v.c || '';
+            row.querySelector('.i-p').value = v.p == null ? '' : v.p;
+            row.querySelector('.i-s').value = v.s || '';
+            row.querySelector('.i-d').value = v.d || '';
+            row.querySelector('.i-l').value = Array.isArray(v.l) ? v.l.join('\n') : '';
             const rm = document.createElement('button');
-            rm.type = 'button';
-            rm.textContent = 'Remove item';
+            rm.type = 'button'; rm.textContent = 'Remove';
             rm.style.background = '#a33';
+            rm.onclick = () => row.remove();
+            row.appendChild(rm);
+            box.appendChild(row);
+            return row;
+        }
+
+        function readRows(box) {
+            return [...box.querySelectorAll('.ed-item')].map(r => ({
+                n: r.querySelector('.i-n').value.trim(),
+                c: r.querySelector('.i-c').value.trim(),
+                p: r.querySelector('.i-p').value.trim(),
+                s: r.querySelector('.i-s').value.trim(),
+                d: r.querySelector('.i-d').value.trim(),
+                l: r.querySelector('.i-l').value.split('\n').map(x => x.trim()).filter(Boolean),
+                _o: r._orig
+            }));
+        }
+
+        /* ---- hero / contact ---- */
+        async function saveHero() {
+            setSt('hStatus', null, 'Saving...');
+            const res = await patchContent({
+                brand: document.getElementById('hBrand').value.trim(),
+                tagline: document.getElementById('hTagline').value.trim(),
+                heroTitle: document.getElementById('hTitle').value.trim(),
+                heroText: document.getElementById('hText').value.trim()
+            });
+            setSt('hStatus', res.ok, res.ok ? 'Top section saved.' : 'Failed to save.');
+        }
+
+        async function saveContact() {
+            setSt('cStatus', null, 'Saving...');
+            const res = await patchContent({
+                phone: document.getElementById('cPhone').value.trim(),
+                days: document.getElementById('cDays').value.trim(),
+                hours: document.getElementById('cHours').value.trim(),
+                address: document.getElementById('cAddress').value
+            });
+            setSt('cStatus', res.ok, res.ok ? 'Contact details saved.' : 'Failed to save.');
+        }
+
+        /* ---- services ---- */
+        function addServiceRow(x) {
+            const box = document.getElementById('svcRows');
+            const v = x ? { n: x.n, c: x.c || x.category, p: x.p != null ? x.p : x.price, s: x.s, d: x.d, l: x.l } : {};
+            const row = itemRow(box, v, x || {});
+            row.querySelector('.i-n').placeholder = 'Service name';
+        }
+
+        async function saveServices() {
+            const rows = readRows(document.getElementById('svcRows')).filter(r => r.n);
+            if (!rows.length) { setSt('svStatus', false, 'Keep at least one service.'); return; }
+            setSt('svStatus', null, 'Saving...');
+            const services = rows.map(r => Object.assign({}, r._o, { n: r.n, c: r.c, p: r.p, s: r.s, d: r.d, l: r.l }));
+            const res = await patchContent({ services });
+            setSt('svStatus', res.ok, res.ok ? 'Services saved.' : 'Failed to save.');
+        }
+
+        /* ---- steps ---- */
+        function addStepRow(x) {
+            x = x || {};
+            const box = document.getElementById('stepRows');
+            const row = document.createElement('div');
+            row.className = 'st-item';
+            row.style.cssText = 'border:1px solid #e2dcd5;border-radius:6px;padding:10px;margin-bottom:10px;background:#fcfbfa;';
+            row.innerHTML = '<input type="text" class="s-t" placeholder="Step title" style="margin-bottom:8px"><textarea class="s-d" placeholder="Step description" style="height:60px;margin-bottom:8px"></textarea>';
+            row.querySelector('.s-t').value = x.t || '';
+            row.querySelector('.s-d').value = x.d || '';
+            const rm = document.createElement('button');
+            rm.type = 'button'; rm.textContent = 'Remove'; rm.style.background = '#a33';
             rm.onclick = () => row.remove();
             row.appendChild(rm);
             box.appendChild(row);
         }
 
-        function resetSegForm() {
-            segEditIndex = -1;
-            document.getElementById('segNav').value = '';
-            document.getElementById('segTitle').value = '';
-            document.getElementById('segDesc').value = '';
-            document.getElementById('segShowNav').checked = true;
-            document.getElementById('segItems').innerHTML = '';
-            document.getElementById('segSaveBtn').textContent = 'Save segment';
+        async function saveSteps() {
+            const steps = [...document.querySelectorAll('#stepRows .st-item')].map(r => ({
+                t: r.querySelector('.s-t').value.trim(), d: r.querySelector('.s-d').value.trim()
+            })).filter(x => x.t || x.d);
+            setSt('stStatus', null, 'Saving...');
+            const res = await patchContent({ steps });
+            setSt('stStatus', res.ok, res.ok ? 'Steps saved.' : 'Failed to save.');
+        }
+
+        /* ---- segments ---- */
+        function showNewSeg() {
+            document.getElementById('newSegBox').classList.remove('hidden');
+            document.getElementById('newSegBtn').classList.add('hidden');
+            document.getElementById('newSegName').focus();
+        }
+        function hideNewSeg() {
+            document.getElementById('newSegBox').classList.add('hidden');
+            document.getElementById('newSegBtn').classList.remove('hidden');
+            document.getElementById('newSegName').value = '';
         }
 
         function segSlug(text, taken) {
@@ -388,94 +531,88 @@
             return id;
         }
 
-        async function saveSegment() {
-            const status = document.getElementById('segStatus');
-            const nav = document.getElementById('segNav').value.trim();
-            const title = document.getElementById('segTitle').value.trim();
-            const desc = document.getElementById('segDesc').value.trim();
-            const showNav = document.getElementById('segShowNav').checked;
-            if (!nav && !title) { status.className = 'error'; status.textContent = 'Please enter a navbar name or heading.'; return; }
-
-            const items = [];
-            document.querySelectorAll('#segItems .seg-item').forEach(r => {
-                const t = r.querySelector('.si-t').value.trim();
-                const c = r.querySelector('.si-c').value.trim();
-                const p = r.querySelector('.si-p').value.trim();
-                const s = r.querySelector('.si-s').value.trim();
-                const d = r.querySelector('.si-d').value.trim();
-                const l = r.querySelector('.si-l').value.split('\n').map(x => x.trim()).filter(Boolean);
-                if (t || s || d) items.push({ t, c, p, s, d, l });
-            });
-
-            status.className = ''; status.textContent = 'Saving...';
+        async function createSegment() {
+            const name = document.getElementById('newSegName').value.trim();
+            if (!name) { setSt('newSegStatus', false, 'Please enter a segment name.'); return; }
+            setSt('newSegStatus', null, 'Creating...');
             const c = await getContent();
             c.customSections = Array.isArray(c.customSections) ? c.customSections : [];
-
-            if (segEditIndex >= 0 && c.customSections[segEditIndex]) {
-                const old = c.customSections[segEditIndex];
-                c.customSections[segEditIndex] = Object.assign({}, old, { n: nav || title, t: title || nav, d: desc, nav: showNav, items });
-            } else {
-                const taken = c.customSections.map(x => x.id);
-                c.customSections.push({ id: segSlug(nav || title, taken), n: nav || title, t: title || nav, d: desc, nav: showNav, items });
-            }
-
+            const sg = { id: segSlug(name, c.customSections.map(x => x.id)), n: name, t: name, d: '', nav: true, items: [] };
+            c.customSections.push(sg);
             const res = await saveContent(c);
-            if (res.ok) {
-                status.className = 'success';
-                status.textContent = 'Segment saved. It is now on your website and navbar.';
-                closeSegForm();
-                loadSegments();
-            } else {
-                let d = {}; try { d = await res.json(); } catch (e) {}
-                status.className = 'error'; status.textContent = d.error || 'Failed to save.';
-            }
+            if (!res.ok) { setSt('newSegStatus', false, 'Failed to save.'); return; }
+            SEGS = c.customSections;
+            hideNewSeg();
+            setSt('newSegStatus', true, 'Segment created. It is now in the website navbar. Add its content below.');
+            renderSegments();
+            const card = document.getElementById('segcard-' + sg.id);
+            if (card) card.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
-        async function loadSegments() {
-            const box = document.getElementById('segList');
-            box.innerHTML = '';
-            const c = await getContent();
-            const list = Array.isArray(c.customSections) ? c.customSections : [];
-            if (!list.length) { box.textContent = 'No segments added yet.'; return; }
-            list.forEach((sg, i) => {
-                const row = document.createElement('div');
-                row.style.cssText = 'border:1px solid #e2dcd5;border-radius:6px;padding:10px;margin-bottom:10px;';
-                const t = document.createElement('div');
-                t.innerHTML = '<b></b> <small style="color:#888"></small>';
-                t.querySelector('b').textContent = sg.n || sg.t;
-                t.querySelector('small').textContent = ' (' + ((sg.items || []).length) + ' items' + (sg.nav === false ? ', hidden from navbar' : '') + ')';
-                const edit = document.createElement('button');
-                edit.textContent = 'Edit';
-                edit.style.cssText = 'margin-top:8px;margin-right:8px;';
-                edit.onclick = () => editSegment(i, sg);
-                const del = document.createElement('button');
-                del.textContent = 'Delete';
-                del.style.cssText = 'margin-top:8px;background:#a33;';
-                del.onclick = () => deleteSegment(i);
-                row.append(t, edit, del);
-                box.appendChild(row);
-            });
+        function renderSegments() {
+            const wrap = document.getElementById('segCards');
+            wrap.innerHTML = '';
+            SEGS.forEach(sg => wrap.appendChild(buildSegCard(sg)));
+            refreshNav();
         }
 
-        function editSegment(i, sg) {
-            openSegForm();
-            document.getElementById('segItems').innerHTML = '';
-            segEditIndex = i;
-            document.getElementById('segNav').value = sg.n || '';
-            document.getElementById('segTitle').value = sg.t || '';
-            document.getElementById('segDesc').value = sg.d || '';
-            document.getElementById('segShowNav').checked = sg.nav !== false;
-            (sg.items || []).forEach(x => addSegItem({ t: x.t, c: x.c, p: x.p, s: x.s || x.d, d: x.d, l: x.l }));
-            document.getElementById('segSaveBtn').textContent = 'Update segment';
-            document.getElementById('segNav').scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
+        function buildSegCard(sg) {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.id = 'segcard-' + sg.id;
+            card.innerHTML =
+                '<h3></h3>' +
+                '<div class="form-group"><label>Navbar Name</label><input type="text" class="g-n"></div>' +
+                '<div class="form-group"><label>Segment Heading</label><input type="text" class="g-t"></div>' +
+                '<div class="form-group"><label>Description</label><textarea class="g-d"></textarea></div>' +
+                '<div class="form-group"><label style="display:flex;align-items:center;gap:8px;font-weight:normal"><input type="checkbox" class="g-nav" style="width:auto"> Show in navbar</label></div>' +
+                '<label>Services / items</label><div class="g-items"></div>' +
+                '<button type="button" class="g-add" style="background:#a67c52;margin-bottom:15px">+ Add item</button><br>' +
+                '<button type="button" class="g-save">Save segment</button> ' +
+                '<button type="button" class="g-del" style="background:#a33">Delete segment</button>' +
+                '<p class="st"></p>';
+            card.querySelector('h3').textContent = 'Segment: ' + (sg.n || sg.t);
+            card.querySelector('.g-n').value = sg.n || '';
+            card.querySelector('.g-t').value = sg.t || '';
+            card.querySelector('.g-d').value = sg.d || '';
+            card.querySelector('.g-nav').checked = sg.nav !== false;
+            const box = card.querySelector('.g-items');
+            (sg.items || []).forEach(x => itemRow(box, { n: x.t, c: x.c, p: x.p, s: x.s || x.d, d: x.d, l: x.l }, x));
+            card.querySelector('.g-add').onclick = () => itemRow(box, {});
+            const st = card.querySelector('.st');
 
-        async function deleteSegment(i) {
-            if (!confirm('Delete this segment from the website?')) return;
-            const c = await getContent();
-            c.customSections = (c.customSections || []).filter((_, idx) => idx !== i);
-            const res = await saveContent(c);
-            if (res.ok) { closeSegForm(); loadSegments(); }
+            card.querySelector('.g-save').onclick = async () => {
+                const nav = card.querySelector('.g-n').value.trim();
+                const title = card.querySelector('.g-t').value.trim();
+                if (!nav && !title) { setSt(st, false, 'Please enter a navbar name or heading.'); return; }
+                const items = readRows(box).filter(r => r.n || r.s || r.d)
+                    .map(r => Object.assign({}, r._o, { t: r.n, c: r.c, p: r.p, s: r.s, d: r.d, l: r.l }));
+                setSt(st, null, 'Saving...');
+                const c = await getContent();
+                c.customSections = Array.isArray(c.customSections) ? c.customSections : [];
+                const i = c.customSections.findIndex(x => x.id === sg.id);
+                const upd = Object.assign({}, c.customSections[i] || { id: sg.id }, {
+                    n: nav || title, t: title || nav, d: card.querySelector('.g-d').value.trim(),
+                    nav: card.querySelector('.g-nav').checked, items
+                });
+                if (i >= 0) c.customSections[i] = upd; else c.customSections.push(upd);
+                const res = await saveContent(c);
+                if (res.ok) {
+                    SEGS = c.customSections;
+                    card.querySelector('h3').textContent = 'Segment: ' + upd.n;
+                    refreshNav();
+                    setSt(st, true, 'Segment saved. It is updated on the website.');
+                } else setSt(st, false, 'Failed to save.');
+            };
+
+            card.querySelector('.g-del').onclick = async () => {
+                if (!confirm('Delete this segment from the website?')) return;
+                const c = await getContent();
+                c.customSections = (c.customSections || []).filter(x => x.id !== sg.id);
+                const res = await saveContent(c);
+                if (res.ok) { SEGS = c.customSections; renderSegments(); } else setSt(st, false, 'Failed to delete.');
+            };
+            return card;
         }
 
         async function changePassword() {
