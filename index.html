@@ -444,7 +444,7 @@ h2::after{width:96px;background:linear-gradient(90deg,var(--bronze),var(--rose),
 .slinks a svg{width:22px;height:22px}
 .social.open .slinks{max-height:240px}
 @media (max-width:760px){
-.social,.dock~.social{top:auto!important;bottom:24px!important;transform:none!important;animation:none!important;flex-direction:column-reverse;border-radius:12px 0 0 12px;opacity:.88;box-shadow:-3px 4px 14px rgba(90,52,30,.22)}
+.social,.dock~.social{top:50%!important;bottom:auto!important;transform:translateY(-50%)!important;animation:none!important;flex-direction:column;border-radius:12px 0 0 12px;opacity:.88;box-shadow:-3px 4px 14px rgba(90,52,30,.22)}
 .social.open{opacity:1}
 .stab{width:28px;height:36px;padding:0;gap:0}
 .stab::after{display:none}
@@ -452,9 +452,6 @@ h2::after{width:96px;background:linear-gradient(90deg,var(--bronze),var(--rose),
 .slinks a{width:34px;height:34px}
 .slinks a svg{width:17px;height:17px}
 .social.open .slinks{max-height:150px}
-}
-@media (max-width:700px){
-.social,.dock~.social{bottom:calc(96px + env(safe-area-inset-bottom,0px))!important}
 }
 </style>
 <style id="glam">
