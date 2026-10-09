@@ -19,9 +19,7 @@ export default async function handler(req, res) {
     const user = process.env.ADMIN_USERNAME || 'admin';
 
     if (!stored || !same(username, user) || !same(password, stored)) {
-      return res.status(401).json({
-        error: `Wrong username or password [passwordSet=${!!stored} userOk=${same(username, user)} passOk=${stored ? same(password, stored) : false} jwtSet=${!!process.env.JWT_SECRET}]`
-      });
+      return res.status(401).json({ error: 'Wrong username or password' });
     }
     return res.status(200).json({ token: signToken(username) });
   } catch (err) {
