@@ -76,38 +76,6 @@
             <p id="contentStatus"></p>
         </div>
 
-        <!-- Website Segments -->
-        <div class="card">
-            <h3>Website Segments</h3>
-            <p style="font-size:14px;color:#666;margin-top:0">Add a new segment. It appears in the website navbar and as its own section on the page.</p>
-            <div class="form-group">
-                <label>Navbar Name</label>
-                <input type="text" id="segNav" placeholder="e.g. Offers">
-            </div>
-            <div class="form-group">
-                <label>Segment Heading</label>
-                <input type="text" id="segTitle" placeholder="e.g. Special offers for you">
-            </div>
-            <div class="form-group">
-                <label>Description</label>
-                <textarea id="segDesc" placeholder="Short text shown under the heading"></textarea>
-            </div>
-            <div class="form-group">
-                <label style="display:flex;align-items:center;gap:8px;font-weight:normal">
-                    <input type="checkbox" id="segShowNav" checked style="width:auto"> Show in navbar
-                </label>
-            </div>
-            <label>Items in this segment</label>
-            <div id="segItems"></div>
-            <button type="button" onclick="addSegItem()" style="background:#a67c52;margin-bottom:15px">+ Add item</button>
-            <div>
-                <button onclick="saveSegment()" id="segSaveBtn">Add segment</button>
-                <button onclick="resetSegForm()" id="segCancelBtn" class="hidden" style="background:#888">Cancel edit</button>
-            </div>
-            <p id="segStatus"></p>
-            <div id="segList" style="margin-top:20px"></div>
-        </div>
-
         <!-- Customer Feedback -->
         <div class="card">
             <h3>Customer Feedback</h3>
@@ -168,7 +136,6 @@
             document.getElementById('adminPanel').classList.remove('hidden');
             fetchCurrentContent();
             loadFeedback();
-            loadSegments();
         }
 
         function logout() {
@@ -321,134 +288,6 @@
             c.reviews = (c.reviews || []).filter((_, idx) => idx !== i);
             const res = await saveContent(c);
             if (res.ok) loadFeedback();
-        }
-
-        /* ---------- Website Segments ---------- */
-        let segEditIndex = -1;
-
-        function addSegItem(t, p, d) {
-            const box = document.getElementById('segItems');
-            const row = document.createElement('div');
-            row.className = 'seg-item';
-            row.style.cssText = 'border:1px solid #e2dcd5;border-radius:6px;padding:10px;margin-bottom:10px;background:#fcfbfa;';
-            row.innerHTML = '<input type="text" class="si-t" placeholder="Item title" style="margin-bottom:8px">' +
-                '<input type="text" class="si-p" placeholder="Price (optional), e.g. Start: \u20B9499" style="margin-bottom:8px">' +
-                '<textarea class="si-d" placeholder="Item description" style="height:70px;margin-bottom:8px"></textarea>';
-            row.querySelector('.si-t').value = t || '';
-            row.querySelector('.si-p').value = p || '';
-            row.querySelector('.si-d').value = d || '';
-            const rm = document.createElement('button');
-            rm.type = 'button';
-            rm.textContent = 'Remove item';
-            rm.style.background = '#a33';
-            rm.onclick = () => row.remove();
-            row.appendChild(rm);
-            box.appendChild(row);
-        }
-
-        function resetSegForm() {
-            segEditIndex = -1;
-            document.getElementById('segNav').value = '';
-            document.getElementById('segTitle').value = '';
-            document.getElementById('segDesc').value = '';
-            document.getElementById('segShowNav').checked = true;
-            document.getElementById('segItems').innerHTML = '';
-            document.getElementById('segSaveBtn').textContent = 'Add segment';
-            document.getElementById('segCancelBtn').classList.add('hidden');
-        }
-
-        function segSlug(text, taken) {
-            let base = 'seg-' + (String(text).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'new');
-            let id = base, n = 2;
-            while (taken.indexOf(id) >= 0) id = base + '-' + (n++);
-            return id;
-        }
-
-        async function saveSegment() {
-            const status = document.getElementById('segStatus');
-            const nav = document.getElementById('segNav').value.trim();
-            const title = document.getElementById('segTitle').value.trim();
-            const desc = document.getElementById('segDesc').value.trim();
-            const showNav = document.getElementById('segShowNav').checked;
-            if (!nav && !title) { status.className = 'error'; status.textContent = 'Please enter a navbar name or heading.'; return; }
-
-            const items = [];
-            document.querySelectorAll('#segItems .seg-item').forEach(r => {
-                const t = r.querySelector('.si-t').value.trim();
-                const p = r.querySelector('.si-p').value.trim();
-                const d = r.querySelector('.si-d').value.trim();
-                if (t || d) items.push({ t, p, d });
-            });
-
-            status.className = ''; status.textContent = 'Saving...';
-            const c = await getContent();
-            c.customSections = Array.isArray(c.customSections) ? c.customSections : [];
-
-            if (segEditIndex >= 0 && c.customSections[segEditIndex]) {
-                const old = c.customSections[segEditIndex];
-                c.customSections[segEditIndex] = Object.assign({}, old, { n: nav || title, t: title || nav, d: desc, nav: showNav, items });
-            } else {
-                const taken = c.customSections.map(x => x.id);
-                c.customSections.push({ id: segSlug(nav || title, taken), n: nav || title, t: title || nav, d: desc, nav: showNav, items });
-            }
-
-            const res = await saveContent(c);
-            if (res.ok) {
-                status.className = 'success';
-                status.textContent = segEditIndex >= 0 ? 'Segment updated.' : 'Segment added. It is now on your website.';
-                resetSegForm();
-                loadSegments();
-            } else {
-                let d = {}; try { d = await res.json(); } catch (e) {}
-                status.className = 'error'; status.textContent = d.error || 'Failed to save.';
-            }
-        }
-
-        async function loadSegments() {
-            const box = document.getElementById('segList');
-            box.innerHTML = '';
-            const c = await getContent();
-            const list = Array.isArray(c.customSections) ? c.customSections : [];
-            if (!list.length) { box.textContent = 'No segments added yet.'; return; }
-            list.forEach((sg, i) => {
-                const row = document.createElement('div');
-                row.style.cssText = 'border:1px solid #e2dcd5;border-radius:6px;padding:10px;margin-bottom:10px;';
-                const t = document.createElement('div');
-                t.innerHTML = '<b></b> <small style="color:#888"></small>';
-                t.querySelector('b').textContent = sg.n || sg.t;
-                t.querySelector('small').textContent = ' (' + ((sg.items || []).length) + ' items' + (sg.nav === false ? ', hidden from navbar' : '') + ')';
-                const edit = document.createElement('button');
-                edit.textContent = 'Edit';
-                edit.style.cssText = 'margin-top:8px;margin-right:8px;';
-                edit.onclick = () => editSegment(i, sg);
-                const del = document.createElement('button');
-                del.textContent = 'Delete';
-                del.style.cssText = 'margin-top:8px;background:#a33;';
-                del.onclick = () => deleteSegment(i);
-                row.append(t, edit, del);
-                box.appendChild(row);
-            });
-        }
-
-        function editSegment(i, sg) {
-            resetSegForm();
-            segEditIndex = i;
-            document.getElementById('segNav').value = sg.n || '';
-            document.getElementById('segTitle').value = sg.t || '';
-            document.getElementById('segDesc').value = sg.d || '';
-            document.getElementById('segShowNav').checked = sg.nav !== false;
-            (sg.items || []).forEach(x => addSegItem(x.t, x.p, x.d));
-            document.getElementById('segSaveBtn').textContent = 'Update segment';
-            document.getElementById('segCancelBtn').classList.remove('hidden');
-            document.getElementById('segNav').scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-
-        async function deleteSegment(i) {
-            if (!confirm('Delete this segment from the website?')) return;
-            const c = await getContent();
-            c.customSections = (c.customSections || []).filter((_, idx) => idx !== i);
-            const res = await saveContent(c);
-            if (res.ok) { resetSegForm(); loadSegments(); }
         }
 
         async function changePassword() {
