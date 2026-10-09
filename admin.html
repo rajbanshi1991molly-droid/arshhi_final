@@ -226,7 +226,7 @@ function parseContent(raw){
 }
 
 async function fetchLatest(){
-  var res=await fetch(API_GET,{cache:'no-store'});
+  var res=await fetch(API_GET+(API_GET.indexOf('?')<0?'?':'&')+'_='+Date.now(),{cache:'no-store',headers:{'Cache-Control':'no-cache'}});
   if(!res.ok)throw new Error('Could not load the current content ('+res.status+').');
   var data=await res.json();
   return parseContent(data.content);
@@ -240,7 +240,7 @@ function buildState(){
   st.services=list('services').map(function(s){
     var p=s.p!=null?s.p:(s.price!=null?s.price:'');
     var c=s.c!=null?s.c:(s.category!=null?s.category:'');
-    return Object.assign({},s,{n:String(s.n||''),s:String(s.s||''),d:String(s.d||''),l:Array.isArray(s.l)?s.l.map(String):[],p:String(p),c:String(c)});
+    return Object.assign({},s,{n:String(s.n||''),s:String(s.s||''),d:String(s.d||''),l:(function(){var v=Array.isArray(s.l)?s.l:(Array.isArray(s.included)?s.included:(Array.isArray(s.includes)?s.includes:(Array.isArray(s.features)?s.features:[])));return v.map(String)})(),p:String(p),c:String(c)});
   });
   st.steps=list('steps').map(function(s){return Object.assign({},s,{t:String(s.t||''),d:String(s.d||'')})});
   st.reviews=(Array.isArray(stored.reviews)?clone(stored.reviews):[]).map(function(r){
@@ -501,7 +501,7 @@ function buildPayload(base){
     var c=String(x.c||'').trim(),p=String(x.p||'').trim().replace(/^\s*(\u20B9|rs\.?|inr)\s*/i,'');
     if(c)o.c=c;else delete o.c;
     if(p)o.p=p;else delete o.p;
-    delete o.price;delete o.category;
+    delete o.price;delete o.category;delete o.included;delete o.includes;delete o.features;
     if(!o.n)errors.push('Service '+(i+1)+' needs a name.');
     return o;
   });
@@ -573,8 +573,15 @@ async function save(){
       var d={};try{d=await res.json()}catch(e){}
       throw new Error(d.error||'Save failed ('+res.status+').');
     }
+    var back=await fetchLatest(),bad=0;
+    (back.services||[]).forEach(function(x,i){
+      var a=JSON.stringify((x&&x.l)||[]),b=JSON.stringify((r.payload.services[i]&&r.payload.services[i].l)||[]);
+      if(a!==b)bad++;
+    });
+    if((back.services||[]).length!==r.payload.services.length)bad++;
     stored=r.payload;dirty=false;
-    setStatus('Saved.','ok');
+    if(bad)setStatus('Saved, but the server returned older "What is included" lists. Reload; if it stays old, the server or website is caching.','warn');
+    else setStatus('Saved. The server now holds your latest "What is included" lists.','ok');
   }catch(err){
     setStatus((err&&err.message)||'Could not save. Check your connection and try again.','bad');
   }finally{btn.disabled=!loadedOk}
