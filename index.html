@@ -524,12 +524,13 @@ var $=function(i){return document.getElementById(i)};
 var data=JSON.parse($('data').textContent),root=$('root');
 
 /* Social links: replace these with your real page addresses (or add a "social" object to the content data) */
-var SOCIAL={facebook:'',instagram:'',linkedin:''};
+var SOCIAL={facebook:'',instagram:'',youtube:'',linkedin:''};
 var ICON={
 facebook:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.5 21v-7.5h2.6l.4-3h-3V8.6c0-.9.3-1.5 1.5-1.5h1.6V4.4c-.3 0-1.2-.1-2.3-.1-2.3 0-3.9 1.4-3.9 4v2.2H7.8v3h2.6V21h3.1z"/></svg>',
 instagram:'<svg viewBox="0 0 24 24" aria-hidden="true" style="fill:none;stroke:currentColor;stroke-width:1.8"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1" style="fill:currentColor;stroke:none"/></svg>',
+youtube:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21.6 7.2a2.5 2.5 0 00-1.8-1.8C18.3 5 12 5 12 5s-6.3 0-7.8.4A2.5 2.5 0 002.4 7.2C2 8.7 2 12 2 12s0 3.3.4 4.8a2.5 2.5 0 001.8 1.8C5.7 19 12 19 12 19s6.3 0 7.8-.4a2.5 2.5 0 001.8-1.8c.4-1.5.4-4.8.4-4.8s0-3.3-.4-4.8zM10 15V9l5.2 3L10 15z"/></svg>',
 linkedin:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.9 9.2H3.6V20h3.3V9.2zM5.3 4a1.9 1.9 0 100 3.8 1.9 1.9 0 000-3.8zM20.4 13.6c0-3-1.6-4.6-3.9-4.6-1.5 0-2.4.8-2.8 1.5V9.2h-3.3V20h3.3v-5.9c0-1.5.3-3 2.2-3s1.9 1.8 1.9 3.1V20h3.3v-6.4z"/></svg>'};
-var NAME={facebook:'Facebook',instagram:'Instagram',linkedin:'LinkedIn'};
+var NAME={facebook:'Facebook',instagram:'Instagram',youtube:'YouTube',linkedin:'LinkedIn'};
 
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
 function dg(p){var d=String(p||'').replace(/\D/g,'');return d.length===10?'91'+d:d}
@@ -539,10 +540,10 @@ function pr(s){var v=s.p!=null?s.p:s.price;return v==null?'':String(v).replace(/
 function head(d){return '<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>'+esc(d.brand)+' \u2013 Door to door beauty care</title><meta name="description" content="'+esc(d.brand)+' brings beauty care services to your home in Kolkata, West Bengal.">'}
 
 function nu(u){u=su(u);return u&&!/^(https?:)?\/\//i.test(u)&&!/^(mailto|tel):/i.test(u)?'https://'+u:u}
-function social(d){var s=d.social||{};return{facebook:nu(s.facebook||d.facebook)||nu(SOCIAL.facebook),instagram:nu(s.instagram||d.instagram)||nu(SOCIAL.instagram),linkedin:nu(s.linkedin||d.linkedin)||nu(SOCIAL.linkedin)}}
+function social(d){var s=d.social||{};return{facebook:nu(s.facebook||d.facebook)||nu(SOCIAL.facebook),instagram:nu(s.instagram||d.instagram)||nu(SOCIAL.instagram),youtube:nu(s.youtube||d.youtube)||nu(SOCIAL.youtube),linkedin:nu(s.linkedin||d.linkedin)||nu(SOCIAL.linkedin)}}
 
 function render(d){
-var tel='tel:+'+dg(d.phone),wa='https://wa.me/'+dg(d.phone)+'?text='+encodeURIComponent('Hello '+d.brand+', I would like to book a service.'),when=esc(d.days)+', '+esc(d.hours),so=social(d),anySo=!!(so.facebook||so.instagram||so.linkedin);
+var tel='tel:+'+dg(d.phone),wa='https://wa.me/'+dg(d.phone)+'?text='+encodeURIComponent('Hello '+d.brand+', I would like to book a service.'),when=esc(d.days)+', '+esc(d.hours),so=social(d),anySo=!!(so.facebook||so.instagram||so.youtube||so.linkedin);
 var cats=[];d.services.forEach(function(x){var c=cat(x);if(c&&cats.indexOf(c)<0)cats.push(c)});
 var flt=cats.length>1?'<div class="filters" role="group" aria-label="Filter services"><button type="button" class="chip" data-f="" aria-pressed="true">All</button>'+cats.map(function(c){return '<button type="button" class="chip" data-f="'+esc(c)+'" aria-pressed="false">'+esc(c)+'</button>'}).join('')+'</div>':'';
 var svc=d.services.map(function(s,i){var c=cat(s),pr_=pr(s);
@@ -568,8 +569,8 @@ return `<div class="topbar"><div class="wrap"><span>${when}</span><a href="${tel
 <section class="faq" id="faq"><div class="wrap"><h2 class="rv">Frequently asked questions</h2><p class="lead rv">Quick answers about booking and visits.</p><div class="fq rv">${faqs}</div></div></section>
 <section class="contact" id="contact"><div class="wrap"><h2 class="rv">Contact us</h2><p class="lead rv">Call or message to book your visit.</p><div class="cgrid"><dl class="rv"><dt>Phone</dt><dd><a class="tel" href="${tel}">${esc(d.phone)}</a></dd><dt>Hours</dt><dd>${when}</dd><dt>Address</dt><dd>${esc(d.address).replace(/\n/g,'<br>')}</dd></dl><div class="book rv" style="--d:140ms"><h3>Ready for a visit?</h3><p>Tell us the service and a time that suits you. We confirm and come to your door.</p><div class="btns"><a class="btn main" href="${tel}">Call now</a><a class="btn alt" href="${wa}" rel="noopener">WhatsApp us</a></div></div></div></div></section>
 </main>
-<footer><div class="wrap fgrid"><div><div class="fbrand">${esc(d.brand)}</div><p>${esc(d.tagline)}<br>Door to door beauty care in Kolkata, West Bengal.</p>${anySo?'<div class="fsoc">'+fs('facebook')+fs('instagram')+fs('linkedin')+'</div>':''}</div><div><h4>Explore</h4><a href="#services">Services</a><a href="#how">Booking</a><a href="#faq">FAQ</a><a href="#contact">Contact</a></div><div><h4>Contact</h4><p>${esc(d.address).replace(/\n/g,'<br>')}</p><a href="${tel}" style="margin-top:8px">${esc(d.phone)}</a><p>${when}</p></div></div><div class="wrap copy">&copy; ${new Date().getFullYear()} ${esc(d.brand)}. All rights reserved.</div></footer>
-${anySo?`<aside class="social" id="social" aria-label="Social media"><button type="button" class="stab" id="sTab" aria-expanded="false" aria-controls="sLinks" aria-label="Follow us on social media"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button><div class="slinks" id="sLinks">${sl('facebook')}${sl('instagram')}${sl('linkedin')}</div></aside>`:''}
+<footer><div class="wrap fgrid"><div><div class="fbrand">${esc(d.brand)}</div><p>${esc(d.tagline)}<br>Door to door beauty care in Kolkata, West Bengal.</p>${anySo?'<div class="fsoc">'+fs('facebook')+fs('instagram')+fs('youtube')+fs('linkedin')+'</div>':''}</div><div><h4>Explore</h4><a href="#services">Services</a><a href="#how">Booking</a><a href="#faq">FAQ</a><a href="#contact">Contact</a></div><div><h4>Contact</h4><p>${esc(d.address).replace(/\n/g,'<br>')}</p><a href="${tel}" style="margin-top:8px">${esc(d.phone)}</a><p>${when}</p></div></div><div class="wrap copy">&copy; ${new Date().getFullYear()} ${esc(d.brand)}. All rights reserved.</div></footer>
+${anySo?`<aside class="social" id="social" aria-label="Social media"><button type="button" class="stab" id="sTab" aria-expanded="false" aria-controls="sLinks" aria-label="Follow us on social media"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button><div class="slinks" id="sLinks">${sl('facebook')}${sl('instagram')}${sl('youtube')}${sl('linkedin')}</div></aside>`:''}
 <div class="cart" id="cart" role="region" aria-label="Selected services"><div class="ci"><b id="cN"></b><small id="cL"></small></div><span class="tot" id="cT" hidden></span><button type="button" class="clr" id="cC">Clear</button><a class="btn main" id="cW" href="#" rel="noopener">Book on WhatsApp</a></div>
 <div class="dock"><a class="btn main" href="${tel}">Call</a><a class="btn alt" href="${wa}" rel="noopener">WhatsApp</a></div>
 <dialog class="modal" id="svcModal" aria-labelledby="mTitle"><button type="button" class="x" id="mClose" aria-label="Close">&times;</button><div class="mbody"><h3 id="mTitle"></h3><p class="price" id="mP"></p><p id="mDesc"></p><h4>What's included</h4><ul id="mList"></ul><div class="mfb" id="mFb" hidden><h4>Client feedback</h4><ul class="fbl" id="mFbL"></ul></div><p class="note">Call or message us to ask about price and timing.</p><div class="btns"><a class="btn main" href="${tel}">Call now</a><a class="btn alt" id="mWa" href="#" rel="noopener">Book on WhatsApp</a></div></div></dialog>
@@ -641,10 +642,13 @@ els.forEach(function(el){io.observe(el)})}
 
 function paint(){root.classList.toggle('noanim',painted);root.innerHTML=render(data);wire();reveal();updateCart();onScroll();painted=true}
 paint();
-fetch('/api/get-content',{cache:'no-store'}).then(function(r){return r.ok?r.json():null}).then(function(res){
+fetch('/api/get-content?cb='+Date.now(),{cache:'no-store'}).then(function(r){return r.ok?r.json():null}).then(function(res){
   var nd=res&&res.content;
   if(typeof nd==='string'){try{nd=JSON.parse(nd)}catch(e){nd=null}}
-  if(nd&&nd.brand&&Array.isArray(nd.services)&&JSON.stringify(nd)!==JSON.stringify(data)){nd.reviews=nd.reviews||[];data=nd;paint()}
+  if(nd&&typeof nd==='object'&&nd.brand&&Array.isArray(nd.services)&&nd.services.length){
+    var merged=Object.assign({},data,nd);merged.reviews=merged.reviews||[];
+    if(JSON.stringify(merged)!==JSON.stringify(data)){data=merged;paint()}
+  }
 }).catch(function(){});
 })();
 </script>
@@ -728,77 +732,5 @@ d.addEventListener('pointermove',function(e){var n=performance.now();if(n-lt<80)
 s.animate([{transform:'translate(-50%,-50%) scale(1)',opacity:.9},{transform:'translate(-50%,14px) scale(.2) rotate(90deg)',opacity:0}],{duration:900,easing:'ease-out'}).onfinish=function(){s.remove()}},{passive:true});
 })();
 </script>
-  <script src="/social.js"></script>
-<script>
-  async function connectToGetContentAPI() {
-    try {
-      // Bypasses static proxy cache states using a dynamic microsecond clock query token
-      const response = await fetch('/api/get-content?cb=' + new Date().getTime(), {
-        cache: "no-store"
-      });
-      const data = await response.json();
-
-      if (data && !data.error) {
-        // 1. Safely bind live text headers
-        if (data.hero_title) {
-          const titleTag = document.getElementById('hero-title');
-          if (titleTag) titleTag.innerText = data.hero_title;
-        }
-
-        // 2. STABLE PHOTO ISOLATION LAYER: Prevents layout grid crashes if string format drops out
-        const visualAssetTag = document.getElementById('live-profile-image');
-        if (visualAssetTag) {
-          if (data.profile_image && typeof data.profile_image === 'string' && data.profile_image.trim() !== "") {
-            visualAssetTag.src = data.profile_image;
-          } else {
-            // Keep your reliable local image path from the assets folder if database string is empty
-            visualAssetTag.src = "images/default-profile.jpg"; 
-          }
-        }
-      }
-    } catch (connectionError) {
-      console.warn("API route dropped out. Maintaining original static fallback layouts.", connectionError);
-    }
-  }
-
-  // Bind execution to process automatically as soon as the DOM renders in the viewport
-  window.addEventListener('DOMContentLoaded', connectToGetContentAPI);
-</script>
-<script>
-  async function connectAndSynchronizeFrontend() {
-    try {
-      // Bypasses static proxy cache states using a dynamic microsecond clock query token
-      const response = await fetch('/api/get-content?cb=' + new Date().getTime(), {
-        cache: "no-store"
-      });
-      const data = await response.json();
-
-      if (data && !data.error) {
-        // 1. Safely bind live text headers to your main viewport title
-        if (data.hero_title) {
-          const titleTag = document.getElementById('hero-title');
-          if (titleTag) titleTag.innerText = data.hero_title;
-        }
-
-        // 2. STABLE PHOTO ISOLATION LAYER: Intercepts unconfigured payloads before layout parsing
-        const visualAssetTag = document.getElementById('live-profile-image');
-        if (visualAssetTag) {
-          if (data.profile_image && typeof data.profile_image === 'string' && data.profile_image.trim() !== "") {
-            visualAssetTag.src = data.profile_image;
-          } else {
-            // Keep your reliable local image path from the assets folder if database string is empty
-            visualAssetTag.src = "images/default-profile.jpg"; 
-          }
-        }
-      }
-    } catch (connectionError) {
-      console.warn("API gateway unreachable. Maintaining original static repository fallback layouts.", connectionError);
-    }
-  }
-
-  // Bind execution to process as soon as the interface layout compiles in the viewport
-  window.addEventListener('DOMContentLoaded', connectAndSynchronizeFrontend);
-</script>
-
 </body>
 </html>
