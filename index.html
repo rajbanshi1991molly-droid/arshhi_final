@@ -145,8 +145,8 @@ h2::after{content:"";display:block;width:64px;height:3px;background:linear-gradi
 /* reviews */
 .hero .reviews{position:relative;z-index:1;margin-top:56px}
 .rh{font-family:var(--serif);font-weight:600;font-size:30px;margin:0 0 18px}
-.rgrid{display:flex;flex-direction:row;flex-wrap:nowrap;gap:20px;overflow-x:auto;padding:12px 4px 18px;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch}
-.rgrid>.rc{flex:1 0 280px;max-width:380px;scroll-snap-align:start}
+.rgrid{display:flex;flex-direction:row;flex-wrap:nowrap;gap:20px;align-items:flex-start;overflow-x:auto;padding:12px 4px 18px;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch}
+.rgrid>.rc{flex:0 0 auto;width:fit-content;min-width:220px;max-width:340px;scroll-snap-align:start}
 .rgrid>.rc.rv{opacity:1;transform:none;filter:none;transition-delay:0s}
 .rgrid>.rc.rv:hover{transform:translateY(-4px)}
 .rc{background:var(--card);border:1px solid var(--line);border-left:3px solid var(--rose);padding:18px 22px;border-radius:0 16px 16px 0;transition:transform .45s var(--ease),box-shadow .45s var(--ease)}
@@ -555,16 +555,18 @@ function head(d){return '<meta charset="utf-8"><meta name="viewport" content="wi
 function nu(u){u=su(u);return u&&!/^(https?:)?\/\//i.test(u)&&!/^(mailto|tel):/i.test(u)?'https://'+u:u}
 function social(d){var s=d.social||{};return{facebook:nu(s.facebook||d.facebook)||nu(SOCIAL.facebook),instagram:nu(s.instagram||d.instagram)||nu(SOCIAL.instagram),youtube:nu(s.youtube||d.youtube)||nu(SOCIAL.youtube),linkedin:nu(s.linkedin||d.linkedin)||nu(SOCIAL.linkedin)}}
 
+function secs(d){return (Array.isArray(d.customSections)?d.customSections:[]).filter(function(c){return c&&(String(c.n||'').trim()||String(c.t||'').trim())}).map(function(c){return{id:c.id,n:c.n,t:c.t,d:c.d,nav:c.nav,items:(c.items||[]).filter(function(x){return x&&(String(x.t||'').trim()||String(x.d||'').trim()||String(x.s||'').trim())}).map(function(x){return{n:x.t||'',s:x.s||x.d||'',d:x.d||x.s||'',l:Array.isArray(x.l)?x.l:[],p:x.p,c:x.c}})}})}
+function allS(){var a=data.services.slice();secs(data).forEach(function(c){c.items.forEach(function(x){a.push(x)})});return a}
+
 function render(d){
 var tel='tel:+'+dg(d.phone),wa='https://wa.me/'+dg(d.phone)+'?text='+encodeURIComponent('Hello '+d.brand+', I would like to book a service.'),when=esc(d.days)+', '+esc(d.hours),so=social(d),anySo=!!(so.facebook||so.instagram||so.youtube||so.linkedin);
 var cats=[];d.services.forEach(function(x){var c=cat(x);if(c&&cats.indexOf(c)<0)cats.push(c)});
 var flt=cats.length>1?'<div class="filters" role="group" aria-label="Filter services"><button type="button" class="chip" data-f="" aria-pressed="true">All</button>'+cats.map(function(c){return '<button type="button" class="chip" data-f="'+esc(c)+'" aria-pressed="false">'+esc(c)+'</button>'}).join('')+'</div>':'';
 var svc=d.services.map(function(s,i){var c=cat(s),pr_=pr(s);
 return '<li class="rv" data-c="'+esc(c)+'" style="--d:'+(i%4*80)+'ms"><div class="card"><div class="cb">'+(c?'<span class="tag">'+esc(c)+'</span>':'')+'<h3>'+esc(s.n)+'</h3><p class="price">'+(pr_?'Start: \u20B9'+esc(pr_):'Call for price')+'</p><p class="sum">'+esc(s.s)+'</p><div class="acts"><button type="button" class="btn alt vd" data-i="'+i+'">View details</button><button type="button" class="btn main add" data-i="'+i+'" aria-pressed="false">Add</button></div></div></div></li>'}).join('');
-var xs=(Array.isArray(d.customSections)?d.customSections:[]).filter(function(c){return c&&(String(c.n||'').trim()||String(c.t||'').trim())});
+var xs=secs(d),xk=d.services.length;
 var xnav=xs.filter(function(c){return c.nav!==false&&c.id}).map(function(c){return '<li><a href="#'+esc(c.id)+'">'+esc(c.n||c.t)+'</a></li>'}).join('');
-var xsec=xs.map(function(c){var its=(c.items||[]).filter(function(x){return x&&(String(x.t||'').trim()||String(x.d||'').trim())});
-return '<section class="guide" id="'+esc(c.id||'')+'"><div class="wrap"><h2 class="rv">'+esc(c.t||c.n)+'</h2>'+(String(c.d||'').trim()?'<p class="lead rv">'+esc(c.d)+'</p>':'')+(its.length?'<div class="gl">'+its.map(function(x,i){return '<article class="rv" style="--d:'+(i%2*100)+'ms"><h3>'+esc(x.t)+'</h3>'+(String(x.p||'').trim()?'<p class="price">'+esc(x.p)+'</p>':'')+(String(x.d||'').trim()?'<p>'+esc(x.d)+'</p>':'')+'</article>'}).join('')+'</div>':'')+'</div></section>'}).join('');
+var xsec=xs.map(function(c){return '<section class="services" id="'+esc(c.id||'')+'"><div class="wrap"><h2 class="rv">'+esc(c.t||c.n)+'</h2>'+(String(c.d||'').trim()?'<p class="lead rv">'+esc(c.d)+'</p>':'')+(c.items.length?'<ul>'+c.items.map(function(s,j){var i=xk++,cc=cat(s),p_=pr(s);return '<li class="rv" style="--d:'+(j%4*80)+'ms"><div class="card"><div class="cb">'+(cc?'<span class="tag">'+esc(cc)+'</span>':'')+'<h3>'+esc(s.n)+'</h3><p class="price">'+(p_?'Start: \u20B9'+esc(p_):'Call for price')+'</p><p class="sum">'+esc(s.s)+'</p><div class="acts"><button type="button" class="btn alt vd" data-i="'+i+'">View details</button><button type="button" class="btn main add" data-i="'+i+'" aria-pressed="false">Add</button></div></div></div></li>'}).join('')+'</ul>':'')+'</div></section>'}).join('');
 var why=[['We come to you','Your service is done at home in Kolkata, so there is no travel and no waiting room.'],[d.days,'Appointments are between '+d.hours+'. We agree a slot that suits you.'],['Combine services','Pick one service or a few. Add them to your list and send them to us together.']].map(function(x){return '<div><b>'+esc(x[0])+'</b><span>'+esc(x[1])+'</span></div>'}).join('');
 var guide=d.services.map(function(s,i){return '<article class="rv" style="--d:'+(i%2*100)+'ms"><h3>'+(i+1)+'. '+esc(s.n)+' at home</h3><p>'+esc(s.d)+'</p>'+((s.l||[]).length?'<ul>'+s.l.map(function(x){return '<li>'+esc(x)+'</li>'}).join('')+'</ul>':'')+'</article>'}).join('');
 var names=d.services.map(function(s){return s.n}).filter(function(n){return String(n).toLowerCase()!=='and more'}).join(', ');
@@ -599,13 +601,13 @@ var m,last,fb,rate=0,stars,painted=false;
 
 /* open a service: fills the details window */
 var sel=[];
-function waList(){return 'https://wa.me/'+dg(data.phone)+'?text='+encodeURIComponent('Hello '+data.brand+', I would like to book: '+sel.map(function(i){return data.services[i].n}).join(', '))}
-function updateCart(){var c=$('cart');if(!c)return;sel=sel.filter(function(i){return data.services[i]});
+function waList(){return 'https://wa.me/'+dg(data.phone)+'?text='+encodeURIComponent('Hello '+data.brand+', I would like to book: '+sel.map(function(i){return allS()[i].n}).join(', '))}
+function updateCart(){var c=$('cart');if(!c)return;sel=sel.filter(function(i){return allS()[i]});
 root.querySelectorAll('.add').forEach(function(b){var on=sel.indexOf(+b.dataset.i)>-1;b.setAttribute('aria-pressed',on?'true':'false');b.textContent=on?'Added \u2713':'Add';b.closest('.card').classList.toggle('sel',on)});
 var n=sel.length;c.classList.toggle('show',n>0);if(!n)return;
 $('cN').textContent=n+(n>1?' services selected':' service selected');
-$('cL').textContent=sel.map(function(i){return data.services[i].n}).join(', ');
-var tot=0,all=true;sel.forEach(function(i){var v=parseFloat(pr(data.services[i]).replace(/[^\d.]/g,''));if(isNaN(v))all=false;else tot+=v});
+$('cL').textContent=sel.map(function(i){return allS()[i].n}).join(', ');
+var tot=0,all=true;sel.forEach(function(i){var v=parseFloat(pr(allS()[i]).replace(/[^\d.]/g,''));if(isNaN(v))all=false;else tot+=v});
 var T=$('cT');T.hidden=!all;if(all)T.textContent='From \u20B9'+tot.toLocaleString('en-IN');
 $('cW').href=waList()}
 function applyFilter(f){root.querySelectorAll('#svcList li[data-c]').forEach(function(li){var show=!f||li.dataset.c===f;li.hidden=!show;if(show){li.classList.add('in');li.classList.remove('pop');void li.offsetWidth;li.classList.add('pop')}})}
@@ -613,7 +615,7 @@ root.addEventListener('click',function(e){
 var ad=e.target.closest&&e.target.closest('.add');if(ad){var i=+ad.dataset.i,k=sel.indexOf(i);if(k>-1)sel.splice(k,1);else sel.push(i);updateCart();return}
 var ch=e.target.closest&&e.target.closest('.chip');if(ch){root.querySelectorAll('.chip').forEach(function(x){x.setAttribute('aria-pressed',x===ch?'true':'false')});applyFilter(ch.dataset.f);return}
 if(e.target.closest&&e.target.closest('#cC')){sel=[];updateCart();return}
-var b=e.target.closest&&e.target.closest('.vd');if(!b)return;var s=data.services[+b.dataset.i];last=b;
+var b=e.target.closest&&e.target.closest('.vd');if(!b)return;var s=allS()[+b.dataset.i];last=b;
 var P=pr(s);$('mP').textContent=P?'Start: \u20B9'+P:'';$('mP').hidden=!P;
 $('mTitle').textContent=s.n;$('mDesc').textContent=s.d;
 var L=$('mList');L.innerHTML='';(s.l||[]).forEach(function(x,i){var li=document.createElement('li');li.textContent=x;li.style.animationDelay=(.25+i*.08)+'s';L.appendChild(li)});
