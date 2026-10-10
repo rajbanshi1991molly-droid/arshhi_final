@@ -425,11 +425,19 @@
             row.querySelector('.i-s').value = v.s || '';
             row.querySelector('.i-d').value = v.d || '';
             row.querySelector('.i-l').value = Array.isArray(v.l) ? v.l.join('\n') : '';
+            const up = document.createElement('button');
+            up.type = 'button'; up.textContent = '\u2191 Up';
+            up.style.cssText = 'background:#a67c52;margin-right:8px';
+            up.onclick = () => { const pr = row.previousElementSibling; if (pr) row.parentNode.insertBefore(row, pr); };
+            const down = document.createElement('button');
+            down.type = 'button'; down.textContent = '\u2193 Down';
+            down.style.cssText = 'background:#a67c52;margin-right:8px';
+            down.onclick = () => { const nx = row.nextElementSibling; if (nx) row.parentNode.insertBefore(nx, row); };
             const rm = document.createElement('button');
             rm.type = 'button'; rm.textContent = 'Remove';
             rm.style.background = '#a33';
             rm.onclick = () => row.remove();
-            row.appendChild(rm);
+            row.append(up, down, rm);
             box.appendChild(row);
             return row;
         }
