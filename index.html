@@ -147,8 +147,8 @@ h2::after{content:"";display:block;width:64px;height:3px;background:linear-gradi
 .rh{font-family:var(--serif);font-weight:600;font-size:30px;margin:0 0 18px}
 .rgrid{display:flex;flex-direction:row;flex-wrap:nowrap;gap:20px;align-items:flex-start;overflow-x:auto;padding:12px 4px 18px;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch}
 .rgrid>.rc{flex:0 0 auto;width:fit-content;min-width:220px;max-width:340px;scroll-snap-align:start}
-.rgrid>.rc.rv{opacity:1;transform:none;filter:none;transition-delay:0s}
-.rgrid>.rc.rv:hover{transform:translateY(-4px)}
+.rgrid .rc.rv{opacity:1;transform:none;filter:none;transition-delay:0s}
+.rgrid .rc.rv:hover{transform:translateY(-4px)}
 .rc{background:var(--card);border:1px solid var(--line);border-left:3px solid var(--rose);padding:18px 22px;border-radius:0 16px 16px 0;transition:transform .45s var(--ease),box-shadow .45s var(--ease)}
 .rc:hover{transform:translateY(-4px);box-shadow:var(--shadow)}
 .stars{color:var(--bronze);letter-spacing:3px;font-size:18px}
@@ -534,8 +534,9 @@ section h2::before{content:"\273F";font:400 26px/1 var(--script);letter-spacing:
 .plink{background:none;border:0;padding:0;margin:0;font:inherit;color:inherit;text-decoration:underline;cursor:pointer}
 .plink:hover{opacity:.8}
 @media(max-width:700px){
-.rgrid{display:block;column-count:2;column-gap:12px;overflow:visible;padding:8px 0 12px}
-.rgrid>.rc{display:inline-block;width:100%;min-width:0;max-width:none;margin:0 0 12px;break-inside:avoid;-webkit-column-break-inside:avoid;box-sizing:border-box;padding:14px 16px}
+.rgrid>.rc{flex:0 0 250px;width:250px;min-width:0;max-width:none}
+.rgrid>.rcol{flex:0 0 250px;display:flex;flex-direction:column;gap:12px;scroll-snap-align:start}
+.rcol>.rc{width:100%;min-width:0;max-width:none;box-sizing:border-box;scroll-snap-align:none}
 }
 #pModal .ppbody{max-height:78vh;overflow-y:auto;text-align:left}
 #pModal .ppbody h3{margin:0 0 6px}
@@ -962,6 +963,26 @@ document.addEventListener('click',function(e){var t=e.target,m=document.getEleme
 if(t.closest('#pOpen')){m.showModal();document.body.classList.add('lock');m.scrollTop=0;var b=m.querySelector('.ppbody');if(b)b.scrollTop=0;return}
 if(t.closest('#pClose')||t===m){m.close()}});
 document.addEventListener('close',function(e){if(e.target&&e.target.id==='pModal')document.body.classList.remove('lock')},true);
+</script>
+<script>
+(function(){
+var mq=window.matchMedia('(max-width:700px)'),tm;
+function unpack(g){[].slice.call(g.querySelectorAll('.rcol')).forEach(function(c){while(c.firstChild)g.insertBefore(c.firstChild,c);c.remove()})}
+function pack(){var g=document.querySelector('.rgrid');if(!g)return;
+if(!mq.matches){if(g.querySelector('.rcol'))unpack(g);return}
+if(g.querySelector('.rcol'))return;
+var cards=[].slice.call(g.querySelectorAll('.rc'));if(cards.length<2)return;
+var gap=12,H=0,hs=cards.map(function(c){var h=c.offsetHeight;if(h>H)H=h;return h});if(!H)return;
+var cols=[],lim=H*1.1;
+cards.forEach(function(c,i){var t=null;for(var k=0;k<cols.length;k++){if(cols[k].sum+gap+hs[i]<=lim){t=cols[k];break}}
+if(!t){t={el:document.createElement('div'),sum:-gap};t.el.className='rcol';cols.push(t)}
+t.sum+=gap+hs[i];t.el.appendChild(c)});
+cols=cols.map(function(c){return c.el});
+cols.forEach(function(c){g.appendChild(c)})}
+function later(){clearTimeout(tm);tm=setTimeout(pack,60)}
+var r=document.getElementById('root');if(r)new MutationObserver(later).observe(r,{childList:true,subtree:true});
+window.addEventListener('resize',later);later();
+})();
 </script>
 </body>
 </html>
