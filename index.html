@@ -666,7 +666,7 @@ fetch('/api/get-content?cb='+Date.now(),{cache:'no-store'}).then(function(r){ret
   var nd=res&&res.content;
   if(typeof nd==='string'){try{nd=JSON.parse(nd)}catch(e){nd=null}}
   if(nd&&typeof nd==='object'){
-    if(!nd.brand)delete nd.brand;if(!Array.isArray(nd.services)||!nd.services.length)delete nd.services;
+    delete nd.logo;if(!nd.brand)delete nd.brand;if(!Array.isArray(nd.services)||!nd.services.length)delete nd.services;
     var merged=Object.assign({},data,nd);merged.reviews=merged.reviews||[];
     if(JSON.stringify(merged)!==JSON.stringify(data)){data=merged;paint()}
   }
