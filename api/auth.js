@@ -1,28 +1,45 @@
-import crypto from 'node:crypto';
-import { redis, PASSWORD_KEY, signToken, readBody } from './_lib.js';
+import { Redis } from '@upstash/redis';
+import jwt from 'jsonwebtoken';
 
-const same = (a, b) => {
-  const x = Buffer.from(String(a ?? ''));
-  const y = Buffer.from(String(b ?? ''));
-  return x.length === y.length && crypto.timingSafeEqual(x, y);
-};
+const redis = Redis.fromEnv();
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
-  try {
-    const { action, username, password } = readBody(req);
-    if (action !== 'login') return res.status(400).json({ error: 'Unknown action' });
 
-    let stored = null;
-    try { stored = await redis.get(PASSWORD_KEY); } catch { /* Redis down: use env password */ }
-    if (stored === null || stored === undefined) stored = process.env.ADMIN_PASSWORD;
-    const user = process.env.ADMIN_USERNAME || 'admin';
+  const { action, username, password, currentPassword, newPassword } = req.body;
+  const SECRET = process.env.JWT_SECRET || 'fallback-secret-key';
 
-    if (!stored || !same(username, user) || !same(password, stored)) {
-      return res.status(401).json({ error: 'Wrong username or password' });
+  // Fallback defaults if variables aren't set yet
+  let masterUser = process.env.ADMIN_USERNAME || 'admin';
+  let masterPass = String((await redis.get('admin_password')) || process.env.ADMIN_PASSWORD || 'password123');
+
+  if (action === 'login') {
+    if (username === masterUser && password === masterPass) {
+      const token = jwt.sign({ user: username }, SECRET, { expiresIn: '1d' });
+      return res.status(200).json({ token });
     }
-    return res.status(200).json({ token: signToken(username) });
-  } catch (err) {
-    return res.status(500).json({ error: err.message });
+    return res.status(401).json({ error: 'Invalid username or password' });
   }
+
+  if (action === 'changePassword') {
+    try {
+      const token = req.headers.authorization?.split(' ')[1];
+      if (!token) return res.status(401).json({ error: 'Unauthorized' });
+      jwt.verify(token, SECRET);
+
+      if (currentPassword !== masterPass) {
+        return res.status(400).json({ error: 'Current password is incorrect' });
+      }
+      if (!newPassword || newPassword.length < 8) {
+        return res.status(400).json({ error: 'New password must be at least 8 characters' });
+      }
+
+      await redis.set('admin_password', newPassword);
+      return res.status(200).json({ success: true });
+    } catch (err) {
+      return res.status(401).json({ error: 'Session expired' });
+    }
+  }
+
+  return res.status(400).json({ error: 'Unknown action' });
 }
