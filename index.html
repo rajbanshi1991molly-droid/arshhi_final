@@ -533,6 +533,10 @@ section h2::before{content:"\273F";font:400 26px/1 var(--script);letter-spacing:
 <style>
 .plink{background:none;border:0;padding:0;margin:0;font:inherit;color:inherit;text-decoration:underline;cursor:pointer}
 .plink:hover{opacity:.8}
+@media(max-width:700px){
+.rgrid{display:block;column-count:2;column-gap:12px;overflow:visible;padding:8px 0 12px}
+.rgrid>.rc{display:inline-block;width:100%;min-width:0;max-width:none;margin:0 0 12px;break-inside:avoid;-webkit-column-break-inside:avoid;box-sizing:border-box;padding:14px 16px}
+}
 #pModal .ppbody{max-height:78vh;overflow-y:auto;text-align:left}
 #pModal .ppbody h3{margin:0 0 6px}
 #pModal .ppbody h4{margin:18px 0 6px}
@@ -958,33 +962,6 @@ document.addEventListener('click',function(e){var t=e.target,m=document.getEleme
 if(t.closest('#pOpen')){m.showModal();document.body.classList.add('lock');m.scrollTop=0;var b=m.querySelector('.ppbody');if(b)b.scrollTop=0;return}
 if(t.closest('#pClose')||t===m){m.close()}});
 document.addEventListener('close',function(e){if(e.target&&e.target.id==='pModal')document.body.classList.remove('lock')},true);
-</script>
-  <script>
-(function () {
-  var src = 'Arshhi_fab.png';
-  var img = new Image();
-  img.onload = function () {
-    var size = 128;
-    var c = document.createElement('canvas');
-    c.width = c.height = size;
-    var ctx = c.getContext('2d');
-    ctx.beginPath();
-    ctx.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2);
-    ctx.closePath();
-    ctx.clip();
-    // fill the circle (crops to a centered square so it isn't stretched)
-    var s = Math.min(img.width, img.height);
-    ctx.drawImage(img, (img.width - s) / 2, (img.height - s) / 2, s, s, 0, 0, size, size);
-
-    document.querySelectorAll('link[rel~="icon"]').forEach(function (l) { l.remove(); });
-    var link = document.createElement('link');
-    link.rel = 'icon';
-    link.type = 'image/png';
-    link.href = c.toDataURL('image/png');
-    document.head.appendChild(link);
-  };
-  img.src = src;
-})();
 </script>
 </body>
 </html>
